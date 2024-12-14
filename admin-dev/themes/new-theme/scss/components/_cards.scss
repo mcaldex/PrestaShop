@@ -5,7 +5,7 @@
 .card {
   position: relative;
   display: block;
-  margin-bottom: $card-spacer-y;
+  margin-bottom: 1rem;
   background-color: $card-bg;
   border: $card-border-width solid $card-border-color;
   @include border-radius($card-border-radius);
@@ -46,15 +46,20 @@
   }
 }
 
+.card-body {
+  padding: 1rem;
+}
+
 //
 // Optional textual caps
 //
 
 .card-header {
-  padding: $card-spacer-y $card-spacer-x;
+  padding: 1rem;
   font-weight: 600;
   line-height: 1.5rem;
   background-color: $card-cap-bg;
+  font-size: var(--#{$cdk}size-18);
 
   .badge {
     vertical-align: middle;
@@ -63,6 +68,7 @@
   .card-header-title {
     font-weight: 600;
     line-height: 1.5rem;
+    font-size: var(--#{$cdk}size-18);
   }
 
   &:not(:has(.dropdown-item)) {
@@ -90,7 +96,7 @@
 }
 
 .card-footer {
-  padding: $card-spacer-y $card-spacer-x * 1.5;
+  padding: 1rem;
   background-color: $card-cap-bg;
   border-top: $card-border-width solid $card-border-color;
 
