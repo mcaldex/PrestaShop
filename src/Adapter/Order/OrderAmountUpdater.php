@@ -133,6 +133,7 @@ class OrderAmountUpdater
         ;
 
         try {
+            CartRule::$skipInitialCartRuleValidityChecks = true;
             // @todo: use https://github.com/PrestaShop/decimal for price computations
             $computingPrecision = $this->getPrecisionFromCart($cart);
 

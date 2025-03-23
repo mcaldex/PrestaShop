@@ -47,6 +47,7 @@ class CartRuleCore extends ObjectModel
      * @var array
      */
     protected static $only_one_gift = [];
+    public static $skipInitialCartRuleValidityChecks = false;
 
     public $id;
     public $name;
@@ -754,7 +755,7 @@ class CartRuleCore extends ObjectModel
         //  - the cart rule can now be disabled but it was at the time it was applied, so it doesn't need to be removed
         //  - the current date is not in the range any more but it was at the time
         //  - the quantity is now zero but it was not when it was added
-        if (!$alreadyInCart) {
+        if (!self::$skipInitialCartRuleValidityChecks) {
             if (!$this->active) {
                 return (!$display_error) ? false : $this->trans('This voucher is disabled', [], 'Shop.Notifications.Error');
             }
