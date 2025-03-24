@@ -314,7 +314,6 @@ abstract class PaymentModuleCore extends Module
         }
         // Make sure CartRule caches are empty
         CartRule::cleanCache();
-        // Skip initial cart rule validity checks so that inactive
         CartRule::$skipInitialCartRuleValidityChecks = true;
         $cart_rules = $this->context->cart->getCartRules();
         foreach ($cart_rules as $cart_rule) {
