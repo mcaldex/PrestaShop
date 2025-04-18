@@ -252,13 +252,8 @@ class CombinationRepository extends AbstractMultiShopObjectModelRepository
         ;
 
         $result = $qb->execute()->fetchAssociative();
-        $reference = '';
 
-        if (!empty($result['reference'])) {
-            $reference = $result['reference'];
-        }
-
-        return $reference;
+        return $result['reference'] ?? '';
     }
 
     /**
