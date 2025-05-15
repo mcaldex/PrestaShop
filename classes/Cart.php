@@ -105,7 +105,7 @@ class CartCore extends ObjectModel
     protected static $_nbProducts = [];
     protected static $_isVirtualCart = [];
 
-    protected $_products = null;
+    protected $_products = [];
     protected static $_totalWeight = [];
     protected $_taxCalculationMethod = PS_TAX_EXC;
     protected static $_carriers = null;
@@ -305,7 +305,7 @@ class CartCore extends ObjectModel
         if (isset(self::$_totalWeight[$this->id])) {
             unset(self::$_totalWeight[$this->id]);
         }
-        $this->_products = null;
+        $this->_products = [];
 
         $return = parent::update($nullValues);
         Hook::exec('actionCartSave', ['cart' => $this]);
@@ -627,11 +627,11 @@ class CartCore extends ObjectModel
         if (!$this->id) {
             return [];
         }
-        // Product cache must be strictly compared to NULL, or else an empty cart will add dozens of queries
-        if ($this->_products !== null && !$refresh) {
+        $cacheId = (int) $id_product . '-' . (int) $id_country . '-' . (int) $fullInfos . '-' . (int) $keepOrderPrices;
+        if (isset($this->_products[$cacheId]) && !$refresh) {
             // Return product row with specified ID if it exists
             if (is_int($id_product)) {
-                foreach ($this->_products as $product) {
+                foreach ($this->_products[$cacheId] as $product) {
                     if ($product['id_product'] == $id_product) {
                         return [$product];
                     }
@@ -640,7 +640,7 @@ class CartCore extends ObjectModel
                 return [];
             }
 
-            return $this->_products;
+            return $this->_products[$cacheId];
         }
 
         // Build query
@@ -769,7 +769,7 @@ class CartCore extends ObjectModel
         Cart::cacheSomeAttributesLists($pa_ids, (int) $this->getAssociatedLanguage()->getId());
 
         if (empty($products)) {
-            $this->_products = [];
+            $this->_products[$cacheId] = [];
 
             return [];
         }
@@ -808,7 +808,7 @@ class CartCore extends ObjectModel
                 }
             }
 
-            $this->_products = [];
+            $this->_products[$cacheId] = [];
 
             foreach ($products as &$product) {
                 if (!array_key_exists('is_gift', $product)) {
@@ -836,7 +836,7 @@ class CartCore extends ObjectModel
                     $product = $this->applyProductCalculations($product, $cart_shop_context, null, $keepOrderPrices);
                 } else {
                     // Separate products given away from those manually added to cart
-                    $this->_products[] = $this->applyProductCalculations($product, $cart_shop_context, $givenAwayQuantity, $keepOrderPrices);
+                    $this->_products[$cacheId][] = $this->applyProductCalculations($product, $cart_shop_context, $givenAwayQuantity, $keepOrderPrices);
                     unset($product['is_gift']);
                     $product = $this->applyProductCalculations(
                         $product,
@@ -846,13 +846,13 @@ class CartCore extends ObjectModel
                     );
                 }
 
-                $this->_products[] = $product;
+                $this->_products[$cacheId][] = $product;
             }
         } else {
-            $this->_products = $products;
+            $this->_products[$cacheId] = $products;
         }
 
-        return $this->_products;
+        return $this->_products[$cacheId];
     }
 
     /**
@@ -4612,7 +4612,7 @@ class CartCore extends ObjectModel
     protected function splitGiftsProductsQuantity()
     {
         $this->shouldSplitGiftProductsQuantity = true;
-        $this->_products = null;
+        $this->_products = [];
 
         return $this;
     }
@@ -4623,7 +4623,7 @@ class CartCore extends ObjectModel
     protected function mergeGiftsProductsQuantity()
     {
         $this->shouldSplitGiftProductsQuantity = false;
-        $this->_products = null;
+        $this->_products = [];
 
         return $this;
     }
@@ -4631,7 +4631,7 @@ class CartCore extends ObjectModel
     protected function excludeGiftsDiscountFromTotal()
     {
         $this->shouldExcludeGiftsDiscount = true;
-        $this->_products = null;
+        $this->_products = [];
 
         return $this;
     }
@@ -4639,7 +4639,7 @@ class CartCore extends ObjectModel
     protected function includeGiftsDiscountInTotal()
     {
         $this->shouldExcludeGiftsDiscount = false;
-        $this->_products = null;
+        $this->_products = [];
 
         return $this;
     }
