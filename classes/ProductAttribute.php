@@ -247,7 +247,7 @@ class ProductAttributeCore extends ObjectModel
         }
 
         $result = Hook::exec(
-            'filterCheckAttributeQty',
+            'actionCheckAttributeQuantity',
             [
                 'id_product_attribute' => $idProductAttribute,
                 'qty' => $qty,

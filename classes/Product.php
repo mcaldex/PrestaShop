@@ -4083,7 +4083,7 @@ class ProductCore extends ObjectModel
         $idCustomization = null
     ) {
         $result = Hook::exec(
-            'filterProductQuantity',
+            'actionOverrideProductQuantity',
             [
                 'id_product' => $idProduct,
                 'id_product_attribute' => $idProductAttribute,
