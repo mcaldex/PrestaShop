@@ -15,6 +15,10 @@ services:
     autowire: true
     tags:
       - { name: 'serializer.normalizer', priority: 10 }
+  PrestaShopBundle\ApiPlatform\Normalizer\DateImmutableNormalizer:
+    autowire: true
+    tags:
+      - { name: 'serializer.normalizer', priority: 10 }
   PrestaShopBundle\ApiPlatform\Normalizer\DecimalNumberNormalizer:
     autowire: true
     tags:
