@@ -35,11 +35,11 @@ namespace {
     {
         public static function getInstance($master = true)
         {
-            return new FakeDb();
+            return new MockDb();
         }
     }
 
-    class FakeDb extends Db
+    class MockDb extends Db
     {
         public function __construct()
         {
@@ -121,6 +121,6 @@ namespace {
 
     // Initialize the Db instance for all tests
     if (!isset(Db::$instance[0])) {
-        Db::$instance[0] = new FakeDb();
+        Db::$instance[0] = new MockDb();
     }
 }
