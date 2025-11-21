@@ -6,6 +6,7 @@
 
 namespace PrestaShop\PrestaShop\Core\Form\IdentifiableObject\DataHandler;
 
+use Carrier;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\Carrier\Command\AddCarrierCommand;
 use PrestaShop\PrestaShop\Core\Domain\Carrier\Command\EditCarrierCommand;
@@ -13,12 +14,14 @@ use PrestaShop\PrestaShop\Core\Domain\Carrier\Command\SetCarrierRangesCommand;
 use PrestaShop\PrestaShop\Core\Domain\Carrier\Command\SetCarrierTaxRuleGroupCommand;
 use PrestaShop\PrestaShop\Core\Domain\Carrier\ValueObject\CarrierId;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
+use PrestaShop\PrestaShop\Core\Hook\HookDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CarrierFormDataHandler implements FormDataHandlerInterface
 {
     public function __construct(
         private readonly CommandBusInterface $commandBus,
+        private readonly HookDispatcherInterface $hookDispatcher
     ) {
     }
 
@@ -104,6 +107,16 @@ class CarrierFormDataHandler implements FormDataHandlerInterface
 
         // Finally we save the tax rules group
         $carrierId = $this->setCarrierTaxRuleGroup($carrierId, $data);
+
+        $this->hookDispatcher->dispatchWithParameters(
+            'actionCarrierUpdate',
+            [
+                'id_carrier' => (int) $id,
+                // BIG NOTE: 
+                // The hook "actionCarrierUpdate" expects the carrier (Carrier object) as a parameter, but we cannot use legacy classes here, so we need to decide how to proceed.
+                'carrier' => new Carrier((int) $carrierId->getValue()),
+            ]
+        );
 
         return $carrierId->getValue();
     }
