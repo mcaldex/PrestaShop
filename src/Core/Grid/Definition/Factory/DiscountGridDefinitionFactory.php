@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace PrestaShop\PrestaShop\Core\Grid\Definition\Factory;
 
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Grid\Action\Row\RowActionCollection;
 use PrestaShop\PrestaShop\Core\Grid\Action\Row\Type\LinkRowAction;
 use PrestaShop\PrestaShop\Core\Grid\Column\ColumnCollection;
@@ -40,6 +41,7 @@ use PrestaShop\PrestaShop\Core\Grid\Filter\Filter;
 use PrestaShop\PrestaShop\Core\Grid\Filter\FilterCollection;
 use PrestaShop\PrestaShop\Core\Grid\Filter\FilterCollectionInterface;
 use PrestaShopBundle\Form\Admin\Type\DateRangeType;
+use PrestaShopBundle\Form\Admin\Type\FilterLinkFilterType;
 use PrestaShopBundle\Form\Admin\Type\SearchAndResetType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -210,6 +212,27 @@ final class DiscountGridDefinitionFactory extends AbstractGridDefinitionFactory 
                         'required' => false,
                         'placeholder' => $this->trans('All', [], 'Admin.Global'),
                         'choice_translation_domain' => false,
+                    ])
+            )
+            ->add(
+                (new Filter('period_filter', FilterLinkFilterType::class))
+                    ->setTypeOptions([
+                        'filter_field_name' => 'period_filter',
+                        'filter_field_selector' => '[data-role="period_filter-filter-field"]',
+                        'default_value' => DiscountSettings::PERIOD_FILTER_ALL,
+                        'filter_options' => [
+                            DiscountSettings::PERIOD_FILTER_ALL => $this->trans('All', [], 'Admin.Global'),
+                            DiscountSettings::PERIOD_FILTER_ACTIVE => $this->trans('Active', [], 'Admin.Catalog.Feature'),
+                            DiscountSettings::PERIOD_FILTER_SCHEDULED => $this->trans('Scheduled', [], 'Admin.Catalog.Feature'),
+                            DiscountSettings::PERIOD_FILTER_EXPIRED => $this->trans('Expired', [], 'Admin.Catalog.Feature'),
+                        ],
+                        'attr' => [
+                            'class' => 'js-period-filter-field',
+                            'data-role' => 'period_filter-filter-field',
+                            'data-filter-field-name' => 'period_filter',
+                        ],
+                        'data' => DiscountSettings::PERIOD_FILTER_ALL,
+                        'empty_data' => DiscountSettings::PERIOD_FILTER_ALL,
                     ])
             )
             ->add((new Filter('date_from_filter', DateRangeType::class))

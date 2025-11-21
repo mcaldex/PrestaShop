@@ -31,4 +31,10 @@ class DiscountSettings
     public const MAX_NAME_LENGTH = 255;
     public const AMOUNT = 'amount';
     public const PERCENT = 'percentage';
+
+    // Period filter values
+    public const PERIOD_FILTER_ALL = 'all';
+    public const PERIOD_FILTER_ACTIVE = 'active';
+    public const PERIOD_FILTER_SCHEDULED = 'scheduled';
+    public const PERIOD_FILTER_EXPIRED = 'expired';
 }
