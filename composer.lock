@@ -5265,12 +5265,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/ps_apiresources.git",
-                "reference": "8261daf0e9b974c44ddd2e32090e934afbba9762"
+                "reference": "66f06b2442cb8af76a3fb34749c2d24b41dc9c24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/8261daf0e9b974c44ddd2e32090e934afbba9762",
-                "reference": "8261daf0e9b974c44ddd2e32090e934afbba9762",
+                "url": "https://api.github.com/repos/PrestaShop/ps_apiresources/zipball/66f06b2442cb8af76a3fb34749c2d24b41dc9c24",
+                "reference": "66f06b2442cb8af76a3fb34749c2d24b41dc9c24",
                 "shasum": ""
             },
             "require": {
@@ -5278,9 +5278,11 @@
             },
             "require-dev": {
                 "czproject/git-php": "^4.2",
+                "doctrine/inflector": "^2.0",
                 "friendsofphp/php-cs-fixer": "^v3",
                 "phpunit/phpunit": "^10",
-                "prestashop/php-dev-tools": "^4.3"
+                "prestashop/php-dev-tools": "^4.3",
+                "rector/rector": "^2.0"
             },
             "default-branch": true,
             "type": "prestashop-module",
@@ -5308,8 +5310,17 @@
                 "run-module-tests": [
                     "@php -d date.timezone=UTC ./vendor/bin/phpunit -c tests/Integration/phpunit-local.xml"
                 ],
+                "run-unit-tests": [
+                    "@php -d date.timezone=UTC ./vendor/bin/phpunit -c tests/Unit/phpunit.xml"
+                ],
                 "setup-local-tests": [
                     "PsApiResourcesTest\\EnvironmentBuilder::setupLocalTests"
+                ],
+                "rector": [
+                    "vendor/bin/rector process --clear-cache --dry-run"
+                ],
+                "rector-fix": [
+                    "vendor/bin/rector process"
                 ]
             },
             "license": [
@@ -5326,7 +5337,7 @@
             "support": {
                 "source": "https://github.com/PrestaShop/ps_apiresources/tree/dev"
             },
-            "time": "2025-11-18T10:41:41+00:00"
+            "time": "2025-11-21T15:46:55+00:00"
         },
         {
             "name": "prestashop/ps_banner",
@@ -18348,5 +18359,5 @@
     "platform-overrides": {
         "php": "8.1.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
