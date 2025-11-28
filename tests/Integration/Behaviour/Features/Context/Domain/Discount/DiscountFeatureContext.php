@@ -37,6 +37,7 @@ use PHPUnit\Framework\Assert;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Domain\CartRule\Exception\CartRuleValidityException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\Command\BulkUpdateDiscountsStatusCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\DeleteDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
 use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
@@ -664,6 +665,33 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             $count,
             $cartRules,
             sprintf('Expected %d cart rules but found %d', $count, count($cartRules))
+        );
+    }
+
+    /**
+     * @Given /^discount "(.*)" is (enabled|disabled)$/
+     *
+     * Status type "enabled|disabled" should be converted by transform context. @see StringToBoolTransformContext
+     *
+     * @param string $discountReference
+     * @param bool $expectedStatus
+     */
+    public function assertDiscountStatus(string $discountReference, bool $expectedStatus): void
+    {
+        $discount = $this->getDiscountForEditing($discountReference);
+        Assert::assertSame($expectedStatus, $discount->isActive());
+    }
+
+    /**
+     * @When /^I bulk (enable|disable) discounts "(.*)"$/
+     *
+     * @param bool $enable
+     * @param string $discountReferences
+     */
+    public function bulkUpdateDiscountsStatus(bool $enable, string $discountReferences)
+    {
+        $this->getCommandBus()->handle(
+            new BulkUpdateDiscountsStatusCommand($this->referencesToIds($discountReferences), $enable)
         );
     }
 }

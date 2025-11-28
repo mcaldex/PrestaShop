@@ -348,6 +348,7 @@ default:
         - Tests\Integration\Behaviour\Features\Context\Domain\FeatureValueFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\FeatureFeatureContext
         - Tests\Integration\Behaviour\Features\Context\Domain\Product\UpdateProductFeatureValuesFeatureContext
+        - Tests\Integration\Behaviour\Features\Transform\StringToBoolTransformContext
 
     catalog_price_rule:
       paths:
