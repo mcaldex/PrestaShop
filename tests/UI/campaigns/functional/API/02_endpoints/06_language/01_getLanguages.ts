@@ -82,7 +82,7 @@ describe('API : GET /languages', async () => {
           'locale',
           'dateFormat',
           'dateTimeFormat',
-          'isRtl',
+          'rtl',
           'enabled',
           'flag',
         );
@@ -172,7 +172,7 @@ describe('API : GET /languages', async () => {
         expect(pageTitleEdit).to.contains(boLanguagesCreatePage.pageEditTitle);
 
         const langIsRTL = await boLanguagesCreatePage.isRTL(page);
-        expect(langIsRTL).to.equal(jsonResponse.items[idxItem].isRtl);
+        expect(langIsRTL).to.equal(jsonResponse.items[idxItem].rtl);
 
         // Return languages tab
         await boLocalizationPage.goToSubTabLanguages(page);
