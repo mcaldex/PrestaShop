@@ -42,7 +42,7 @@ Feature: Customer using discount with customer groups eligibility
       | name[fr-FR]              | Réduction VIP       |
       | active                   | true                |
       | valid_from               | 2025-01-01 00:00:00 |
-      | valid_to                 | 2025-12-31 23:59:59 |
+      | valid_to                 | 2026-12-31 23:59:59 |
       | code                     | VIP_GROUP_20        |
       | reduction_percent        | 20.0                |
       | customer_groups          | group1              |
@@ -73,7 +73,7 @@ Feature: Customer using discount with customer groups eligibility
       | name[fr-FR]              | Exclusif VIP        |
       | active                   | true                |
       | valid_from               | 2025-01-01 00:00:00 |
-      | valid_to                 | 2025-12-31 23:59:59 |
+      | valid_to                 | 2026-12-31 23:59:59 |
       | code                     | VIP_EXCLUSIVE       |
       | reduction_percent        | 25.0                |
       | customer_groups          | group1              |
@@ -106,7 +106,7 @@ Feature: Customer using discount with customer groups eligibility
       | name[fr-FR]              | Promotion spéciale       |
       | active                   | true                     |
       | valid_from               | 2025-01-01 00:00:00      |
-      | valid_to                 | 2025-12-31 23:59:59      |
+      | valid_to                 | 2026-12-31 23:59:59      |
       | code                     | SPECIAL_30               |
       | reduction_percent        | 30.0                     |
       | customer_groups          | group1,group2            |
@@ -153,7 +153,7 @@ Feature: Customer using discount with customer groups eligibility
       | name[fr-FR]              | Livraison gratuite Premium |
       | active                   | true                       |
       | valid_from               | 2025-01-01 00:00:00        |
-      | valid_to                 | 2025-12-31 23:59:59        |
+      | valid_to                 | 2026-12-31 23:59:59        |
       | code                     | FREESHIP_PREMIUM           |
       | customer_groups          | group2                     |
       | total_quantity           | 100                        |
@@ -183,7 +183,7 @@ Feature: Customer using discount with customer groups eligibility
       | name[fr-FR]              | Soldes d'été        |
       | active                   | true                |
       | valid_from               | 2025-01-01 00:00:00 |
-      | valid_to                 | 2025-12-31 23:59:59 |
+      | valid_to                 | 2026-12-31 23:59:59 |
       | code                     | SUMMER_10           |
       | reduction_percent        | 10.0                |
       | total_quantity           | 100                 |
