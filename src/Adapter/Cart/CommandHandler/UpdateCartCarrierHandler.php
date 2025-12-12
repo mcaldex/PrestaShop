@@ -67,6 +67,7 @@ final class UpdateCartCarrierHandler extends AbstractCartHandler implements Upda
         try {
             $cart->setDeliveryOption([
                 (int) $cart->id_address_delivery => $this->formatLegacyDeliveryOptionFromCarrierId($command->getNewCarrierId()),
+                true,
             ]);
             $cart->id_carrier = $command->getNewCarrierId();
             $cart->update();
