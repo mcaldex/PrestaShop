@@ -274,7 +274,15 @@ class OrderLazyArray extends AbstractLazyArray
 
                 if (isset($indexedOrderProducts[$orderDetailId])) {
                     $product = $indexedOrderProducts[$orderDetailId];
+                    $product['quantity'] = $shipmentProduct->getQuantity();
 
+                    $includeTaxes = $this->includeTaxes();
+                    $totalPrice = $includeTaxes ? $shipmentProduct->getTotalPriceTaxIncl() : $shipmentProduct->getTotalPriceTaxExcl();
+
+                    $product['total'] = $this->priceFormatter->format(
+                        $totalPrice,
+                        Currency::getCurrencyInstance((int) $this->order->id_currency)
+                    );
                     $mappedProducts[] = array_merge(
                         $product,
                         [

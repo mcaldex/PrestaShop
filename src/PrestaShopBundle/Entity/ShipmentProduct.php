@@ -61,6 +61,16 @@ class ShipmentProduct
      */
     private int $quantity;
 
+    /**
+     * @ORM\Column(name="totalPriceTaxIncl", type="float")
+     */
+    private float $totalPriceTaxIncl;
+
+    /**
+     * @ORM\Column(name="totalPriceTaxExcl", type="float")
+     */
+    private float $totalPriceTaxExcl;
+
     public function getId(): int
     {
         return $this->id;
@@ -98,6 +108,30 @@ class ShipmentProduct
     public function setQuantity(int $quantity): self
     {
         $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getTotalPriceTaxIncl(): float
+    {
+        return $this->totalPriceTaxIncl;
+    }
+
+    public function setTotalPriceTaxIncl(float $totalPriceTaxIncl): self
+    {
+        $this->totalPriceTaxIncl = $totalPriceTaxIncl;
+
+        return $this;
+    }
+
+    public function getTotalPriceTaxExcl(): float
+    {
+        return $this->totalPriceTaxExcl;
+    }
+
+    public function setTotalPriceTaxExcl(float $totalPriceTaxExcl): self
+    {
+        $this->totalPriceTaxExcl = $totalPriceTaxExcl;
 
         return $this;
     }

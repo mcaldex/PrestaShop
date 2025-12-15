@@ -42,9 +42,15 @@ class OrderShipmentCreator
      */
     private $shipmentRepository;
 
-    public function __construct(ShipmentRepository $shipmentRepository)
+    /**
+     * @var ShipmentTotalsCalculatorInterface
+     */
+    private $shipmentTotalsCalculator;
+
+    public function __construct(ShipmentRepository $shipmentRepository, ShipmentTotalsCalculatorInterface $shipmentTotalsCalculator)
     {
         $this->shipmentRepository = $shipmentRepository;
+        $this->shipmentTotalsCalculator = $shipmentTotalsCalculator;
     }
 
     public function addShipmentOrder(Order $order, array $productsHandledByCarrier): void
@@ -77,17 +83,55 @@ class OrderShipmentCreator
             // match products with order details to get quantities & orderDetailId
             foreach (OrderDetail::getList($order->id) as $orderDetailProduct) {
                 foreach ($products['product_list'] as $product) {
-                    if ($product['id_product'] === $orderDetailProduct['product_id']) {
-                        $shipmentProduct = new ShipmentProduct();
-                        $shipmentProduct->setShipment($shipment);
-                        $shipmentProduct->setOrderDetailId($orderDetailProduct['id_order_detail']);
-                        $shipmentProduct->setQuantity($orderDetailProduct['product_quantity']);
-                        $shipment->addShipmentProduct($shipmentProduct);
+                    if (!$this->needShipmentProductCreation($product, $orderDetailProduct)) {
+                        continue;
                     }
+
+                    $quantity = $orderDetailProduct['product_quantity'];
+                    $orderDetailId = $orderDetailProduct['id_order_detail'];
+
+                    [$totalTaxExcl, $totalTaxIncl] = $this->shipmentTotalsCalculator->calculate($orderDetailId, $quantity);
+
+                    $shipmentProduct = (new ShipmentProduct())
+                        ->setShipment($shipment)
+                        ->setOrderDetailId($orderDetailId)
+                        ->setTotalPriceTaxExcl($totalTaxExcl)
+                        ->setTotalPriceTaxIncl($totalTaxIncl)
+                        ->setQuantity($quantity);
+
+                    $shipment->addShipmentProduct($shipmentProduct);
                 }
             }
 
             $this->shipmentRepository->save($shipment);
         }
+    }
+
+    /**
+     * @param array{
+     *     id_customization: int,
+     *     id_product_attribute: int,
+     *     id_product: int
+     * } $product
+     * @param array{
+     *     id_customization: int,
+     *     id_order_detail: int,
+     *     product_id: int,
+     *     product_attribute_id: int,
+     *     product_quantity: int
+     * } $orderDetailProduct
+     *
+     * @return bool
+     */
+    private function needShipmentProductCreation(array $product, array $orderDetailProduct): bool
+    {
+        if (!empty($product['id_customization'])) {
+            return $product['id_customization'] === $orderDetailProduct['id_customization'];
+        }
+        if (!empty($product['id_product_attribute'])) {
+            return $product['id_product_attribute'] === $orderDetailProduct['product_attribute_id'];
+        }
+
+        return $product['id_product'] === $orderDetailProduct['product_id'];
     }
 }
