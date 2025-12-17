@@ -35,11 +35,6 @@ use PrestaShopBundle\Entity\ShipmentProduct;
 
 class ShipmentSplitter implements ShipmentSplitterInterface
 {
-    public function __construct(
-        private ShipmentTotalsCalculatorInterface $totalsCalculator,
-    ) {
-    }
-
     /**
      * @param Shipment $source
      * @param int $carrierId
@@ -77,19 +72,12 @@ class ShipmentSplitter implements ShipmentSplitterInterface
                 $source->removeProduct($sourceProduct);
             } else {
                 $sourceProduct->setQuantity($remainingQty);
-                [$excl, $incl] = $this->totalsCalculator->calculate($orderDetailId, $remainingQty);
-                $sourceProduct->setTotalPriceTaxExcl($excl);
-                $sourceProduct->setTotalPriceTaxIncl($incl);
             }
-
-            [$excl, $incl] = $this->totalsCalculator->calculate($orderDetailId, $quantity);
 
             $newShipment->addShipmentProduct(
                 (new ShipmentProduct())
                     ->setOrderDetailId($orderDetailId)
                     ->setQuantity($quantity)
-                    ->setTotalPriceTaxExcl($excl)
-                    ->setTotalPriceTaxIncl($incl)
             );
         }
 

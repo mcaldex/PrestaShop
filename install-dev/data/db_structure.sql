@@ -3084,10 +3084,8 @@ CREATE TABLE `PREFIX_shipment` (
 
 CREATE TABLE `PREFIX_shipment_product` (
   `id_shipment_product` INT AUTO_INCREMENT NOT NULL,
-  `id_shipment` INT(10) NOT NULL,
-  `id_order_detail` INT(10) NOT NULL,
-  `quantity` INT(10) DEFAULT NULL,
-  `totalPriceTaxIncl` FLOAT NOT NULL,
-  `totalPriceTaxExcl` FLOAT NOT NULL,
-  PRIMARY KEY (`id_shipment_product`)
-) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `id_shipment` int(10) NOT NULL,
+  `id_order_detail` int(10) NOT NULL,
+  `quantity` int(10) DEFAULT NULL,
+  PRIMARY KEY (id_shipment_product)
+) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8mb4 COLLATION;

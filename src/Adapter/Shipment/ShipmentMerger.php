@@ -35,11 +35,6 @@ use PrestaShopBundle\Entity\ShipmentProduct;
 
 class ShipmentMerger implements ShipmentMergerInterface
 {
-    public function __construct(
-        private ShipmentTotalsCalculatorInterface $totalsCalculator,
-    ) {
-    }
-
     /**
      * @param Shipment $source
      * @param Shipment $target
@@ -64,23 +59,16 @@ class ShipmentMerger implements ShipmentMergerInterface
             }
 
             if (!isset($targetProducts[$orderDetailId])) {
-                [$excl, $incl] = $this->totalsCalculator->calculate($orderDetailId, $quantity);
-
                 $target->addShipmentProduct(
                     (new ShipmentProduct())
                         ->setOrderDetailId($orderDetailId)
                         ->setQuantity($quantity)
-                        ->setTotalPriceTaxExcl($excl)
-                        ->setTotalPriceTaxIncl($incl)
                 );
             } else {
                 $targetProduct = $targetProducts[$orderDetailId];
                 $newQty = $targetProduct->getQuantity() + $quantity;
 
                 $targetProduct->setQuantity($newQty);
-                [$excl, $incl] = $this->totalsCalculator->calculate($orderDetailId, $newQty);
-                $targetProduct->setTotalPriceTaxExcl($excl);
-                $targetProduct->setTotalPriceTaxIncl($incl);
             }
 
             $sourceProduct = $sourceProducts[$orderDetailId];
@@ -90,9 +78,6 @@ class ShipmentMerger implements ShipmentMergerInterface
                 $source->removeProduct($sourceProduct);
             } else {
                 $sourceProduct->setQuantity($remainingQty);
-                [$excl, $incl] = $this->totalsCalculator->calculate($orderDetailId, $remainingQty);
-                $sourceProduct->setTotalPriceTaxExcl($excl);
-                $sourceProduct->setTotalPriceTaxIncl($incl);
             }
         }
     }

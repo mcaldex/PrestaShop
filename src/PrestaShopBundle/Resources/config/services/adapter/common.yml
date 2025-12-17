@@ -23,7 +23,6 @@ services:
   PrestaShop\PrestaShop\Adapter\Shipment\OrderShipmentCreator:
     arguments:
       - '@PrestaShopBundle\Entity\Repository\ShipmentRepository'
-      - '@PrestaShop\PrestaShop\Adapter\Shipment\ShipmentTotalsCalculatorInterface'
 
   PrestaShop\PrestaShop\Adapter\Shipment\ShipmentTotalsCalculatorInterface:
     class: PrestaShop\PrestaShop\Adapter\Shipment\ShipmentTotalsCalculator

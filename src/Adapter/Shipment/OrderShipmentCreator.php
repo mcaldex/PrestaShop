@@ -42,15 +42,9 @@ class OrderShipmentCreator
      */
     private $shipmentRepository;
 
-    /**
-     * @var ShipmentTotalsCalculatorInterface
-     */
-    private $shipmentTotalsCalculator;
-
-    public function __construct(ShipmentRepository $shipmentRepository, ShipmentTotalsCalculatorInterface $shipmentTotalsCalculator)
+    public function __construct(ShipmentRepository $shipmentRepository)
     {
         $this->shipmentRepository = $shipmentRepository;
-        $this->shipmentTotalsCalculator = $shipmentTotalsCalculator;
     }
 
     public function addShipmentOrder(Order $order, array $productsHandledByCarrier): void
@@ -90,13 +84,9 @@ class OrderShipmentCreator
                     $quantity = $orderDetailProduct['product_quantity'];
                     $orderDetailId = $orderDetailProduct['id_order_detail'];
 
-                    [$totalTaxExcl, $totalTaxIncl] = $this->shipmentTotalsCalculator->calculate($orderDetailId, $quantity);
-
                     $shipmentProduct = (new ShipmentProduct())
                         ->setShipment($shipment)
                         ->setOrderDetailId($orderDetailId)
-                        ->setTotalPriceTaxExcl($totalTaxExcl)
-                        ->setTotalPriceTaxIncl($totalTaxIncl)
                         ->setQuantity($quantity);
 
                     $shipment->addShipmentProduct($shipmentProduct);

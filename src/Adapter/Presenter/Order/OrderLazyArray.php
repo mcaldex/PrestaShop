@@ -44,6 +44,7 @@ use PrestaShop\PrestaShop\Adapter\Presenter\Cart\CartPresenter;
 use PrestaShop\PrestaShop\Adapter\Presenter\LazyArrayAttribute;
 use PrestaShop\PrestaShop\Adapter\Presenter\Object\ObjectPresenter;
 use PrestaShop\PrestaShop\Adapter\Product\PriceFormatter;
+use PrestaShop\PrestaShop\Adapter\Shipment\ShipmentTotalsCalculatorInterface;
 use PrestaShop\PrestaShop\Core\Util\ColorBrightnessCalculator;
 use PrestaShopBundle\Entity\Repository\ShipmentRepository;
 use PrestaShopBundle\Entity\ShipmentProduct;
@@ -80,6 +81,9 @@ class OrderLazyArray extends AbstractLazyArray
     /** @var ShipmentRepository */
     private $shipmentRepository;
 
+    /** @var ShipmentTotalsCalculatorInterface */
+    private $shipmentTotalCalculator;
+
     /**
      * OrderArray constructor.
      *
@@ -96,8 +100,8 @@ class OrderLazyArray extends AbstractLazyArray
         $this->taxConfiguration = new TaxConfiguration();
         $this->subTotals = new OrderSubtotalLazyArray($this->order);
         $containerFinder = new ContainerFinder(Context::getContext());
-        /* @var ShipmentRepository $shipmentRepository */
         $this->shipmentRepository = $containerFinder->getContainer()->get(ShipmentRepository::class);
+        $this->shipmentTotalCalculator = $containerFinder->getContainer()->get(ShipmentTotalsCalculatorInterface::class);
 
         parent::__construct();
     }
@@ -277,7 +281,8 @@ class OrderLazyArray extends AbstractLazyArray
                     $product['quantity'] = $shipmentProduct->getQuantity();
 
                     $includeTaxes = $this->includeTaxes();
-                    $totalPrice = $includeTaxes ? $shipmentProduct->getTotalPriceTaxIncl() : $shipmentProduct->getTotalPriceTaxExcl();
+                    [$excl, $incl] = $this->shipmentTotalCalculator->calculate($orderDetailId, $shipmentProduct->getQuantity());
+                    $totalPrice = $includeTaxes ? $incl : $excl;
 
                     $product['total'] = $this->priceFormatter->format(
                         $totalPrice,
