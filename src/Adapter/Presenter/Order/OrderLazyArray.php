@@ -281,11 +281,10 @@ class OrderLazyArray extends AbstractLazyArray
                     $product['quantity'] = $shipmentProduct->getQuantity();
 
                     $includeTaxes = $this->includeTaxes();
-                    [$excl, $incl] = $this->shipmentTotalCalculator->calculate($orderDetailId, $shipmentProduct->getQuantity());
-                    $totalPrice = $includeTaxes ? $incl : $excl;
+                    $total = $this->shipmentTotalCalculator->calculate($orderDetailId, $shipmentProduct->getQuantity(), $includeTaxes);
 
                     $product['total'] = $this->priceFormatter->format(
-                        $totalPrice,
+                        $total,
                         Currency::getCurrencyInstance((int) $this->order->id_currency)
                     );
                     $mappedProducts[] = array_merge(

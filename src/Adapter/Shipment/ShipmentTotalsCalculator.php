@@ -46,47 +46,43 @@ class ShipmentTotalsCalculator implements ShipmentTotalsCalculatorInterface
     ) {
     }
 
-    public function calculate(int $orderDetailId, int $quantity): array
-    {
+    public function calculate(
+        int $orderDetailId,
+        int $quantity,
+        bool $isTaxIncl = true,
+    ): float {
         $orderDetail = $this->orderDetailRepository->get(new OrderDetailId($orderDetailId));
         $order = $this->orderRepository->get(new OrderId($orderDetail->id_order));
+
+        $unitPrice = $isTaxIncl
+            ? $orderDetail->unit_price_tax_incl
+            : $orderDetail->unit_price_tax_excl;
+
+        return $this->calculateTotal($order, $unitPrice, $quantity);
+    }
+
+    private function calculateTotal(Order $order, float $unitPrice, int $quantity): float
+    {
         $precision = $this->context->getContext()->getComputingPrecision();
 
         switch ($order->round_type) {
             case Order::ROUND_TOTAL:
-                $totalTaxIncl = $orderDetail->unit_price_tax_incl * $quantity;
-                $totalTaxExcl = $orderDetail->unit_price_tax_excl * $quantity;
-                break;
+                return $unitPrice * $quantity;
 
             case Order::ROUND_LINE:
-                $totalTaxIncl = $this->tools->round(
-                    $orderDetail->unit_price_tax_incl * $quantity,
+                return $this->tools->round(
+                    $unitPrice * $quantity,
                     $precision,
                     $order->round_mode
                 );
-                $totalTaxExcl = $this->tools->round(
-                    $orderDetail->unit_price_tax_excl * $quantity,
-                    $precision,
-                    $order->round_mode
-                );
-                break;
 
             case Order::ROUND_ITEM:
             default:
-                $totalTaxIncl = $this->tools->round(
-                    $orderDetail->unit_price_tax_incl,
+                return $this->tools->round(
+                    $unitPrice,
                     $precision,
                     $order->round_mode
                 ) * $quantity;
-
-                $totalTaxExcl = $this->tools->round(
-                    $orderDetail->unit_price_tax_excl,
-                    $precision,
-                    $order->round_mode
-                ) * $quantity;
-                break;
         }
-
-        return [$totalTaxExcl, $totalTaxIncl];
     }
 }
