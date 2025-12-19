@@ -247,11 +247,11 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
 
         if ($command->getDiscountType()->getValue() === DiscountType::FREE_GIFT) {
             if (!empty($data['gift_product'])) {
-                $command->setProductId($this->referenceToId($data['gift_product']));
+                $command->setGiftProductId($this->referenceToId($data['gift_product']));
             }
 
             if (!empty($data['gift_combination'])) {
-                $command->setCombinationId($this->referenceToId($data['gift_combination']));
+                $command->setGiftCombinationId($this->referenceToId($data['gift_combination']));
             }
         }
 
@@ -394,11 +394,11 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
 
         if (!empty($data['gift_product'])) {
-            $command->setProductId($this->referenceToId($data['gift_product']));
+            $command->setGiftProductId($this->referenceToId($data['gift_product']));
         }
 
         if (!empty($data['gift_combination'])) {
-            $command->setCombinationId($this->referenceToId($data['gift_combination']));
+            $command->setGiftCombinationId($this->referenceToId($data['gift_combination']));
         }
 
         if (isset($data['customer_groups'])) {

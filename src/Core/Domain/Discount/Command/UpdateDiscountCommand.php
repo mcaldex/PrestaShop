@@ -66,8 +66,8 @@ class UpdateDiscountCommand
     private ?bool $allowPartialUse = null;
     private ?DecimalNumber $percentDiscount = null;
     private ?Money $amountDiscount = null;
-    private ?ProductId $productId = null;
-    private ?CombinationIdInterface $combinationId = null;
+    private ?ProductId $giftProductId = null;
+    private ?CombinationIdInterface $giftCombinationId = null;
     private ?int $reductionProduct = null;
     private ?int $minimumProductsQuantity = null;
 
@@ -337,38 +337,38 @@ class UpdateDiscountCommand
         return $this;
     }
 
-    public function getProductId(): ?ProductId
+    public function getGiftProductId(): ?ProductId
     {
-        return $this->productId;
+        return $this->giftProductId;
     }
 
     /**
      * @throws ProductConstraintException
      */
-    public function setProductId(int $productId): self
+    public function setGiftProductId(int $giftProductId): self
     {
-        $this->productId = new ProductId($productId);
-        $this->markDirty('productId');
+        $this->giftProductId = new ProductId($giftProductId);
+        $this->markDirty('giftProductId');
 
         return $this;
     }
 
-    public function getCombinationId(): ?CombinationIdInterface
+    public function getGiftCombinationId(): ?CombinationIdInterface
     {
-        return $this->combinationId;
+        return $this->giftCombinationId;
     }
 
     /**
      * @throws CombinationConstraintException
      */
-    public function setCombinationId(int $combinationId): self
+    public function setGiftCombinationId(int $giftCombinationId): self
     {
-        if (NoCombinationId::NO_COMBINATION_ID === $combinationId) {
-            $this->combinationId = new NoCombinationId();
+        if (NoCombinationId::NO_COMBINATION_ID === $giftCombinationId) {
+            $this->giftCombinationId = new NoCombinationId();
         } else {
-            $this->combinationId = new CombinationId($combinationId);
+            $this->giftCombinationId = new CombinationId($giftCombinationId);
         }
-        $this->markDirty('combinationId');
+        $this->markDirty('giftCombinationId');
 
         return $this;
     }

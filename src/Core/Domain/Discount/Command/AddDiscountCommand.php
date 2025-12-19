@@ -61,8 +61,8 @@ class AddDiscountCommand
     private DiscountType $type;
     private ?DecimalNumber $percentDiscount = null;
     private ?Money $amountDiscount = null;
-    private ?ProductId $productId = null;
-    private ?CombinationIdInterface $combinationId = null;
+    private ?ProductId $giftProductId = null;
+    private ?CombinationIdInterface $giftCombinationId = null;
     private int $reductionProduct = 0;
     private ?int $minimumProductsQuantity = null;
 
@@ -300,29 +300,29 @@ class AddDiscountCommand
         return $this;
     }
 
-    public function getProductId(): ?ProductId
+    public function getGiftProductId(): ?ProductId
     {
-        return $this->productId;
+        return $this->giftProductId;
     }
 
-    public function setProductId(int $productId): self
+    public function setGiftProductId(int $giftProductId): self
     {
-        $this->productId = new ProductId($productId);
+        $this->giftProductId = new ProductId($giftProductId);
 
         return $this;
     }
 
-    public function getCombinationId(): ?CombinationIdInterface
+    public function getGiftCombinationId(): ?CombinationIdInterface
     {
-        return $this->combinationId;
+        return $this->giftCombinationId;
     }
 
-    public function setCombinationId(int $combinationId): self
+    public function setGiftCombinationId(int $giftCombinationId): self
     {
-        if (NoCombinationId::NO_COMBINATION_ID === $combinationId) {
-            $this->combinationId = new NoCombinationId();
+        if (NoCombinationId::NO_COMBINATION_ID === $giftCombinationId) {
+            $this->giftCombinationId = new NoCombinationId();
         } else {
-            $this->combinationId = new CombinationId($combinationId);
+            $this->giftCombinationId = new CombinationId($giftCombinationId);
         }
 
         return $this;

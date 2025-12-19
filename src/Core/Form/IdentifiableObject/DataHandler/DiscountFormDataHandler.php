@@ -126,8 +126,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
-                $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
-                $command->setCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
+                $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
+                $command->setGiftCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
@@ -233,8 +233,8 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
-                $command->setProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
-                $command->setCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
+                $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
+                $command->setGiftCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);

@@ -135,10 +135,10 @@ class DiscountValidator extends AbstractObjectModelValidator
                 }
                 break;
             case DiscountType::FREE_GIFT:
-                if ($command->getProductId() === null) {
+                if ($command->getGiftProductId() === null) {
                     throw new DiscountConstraintException('Free gift discount must have his properties set.', DiscountConstraintException::INVALID_FREE_GIFT_DISCOUNT_PROPERTIES);
                 }
-                $product = $this->productRepository->getByShopConstraint($command->getProductId(), ShopConstraint::allShops());
+                $product = $this->productRepository->getByShopConstraint($command->getGiftProductId(), ShopConstraint::allShops());
                 if ($product->customizable) {
                     throw new DiscountConstraintException('Product with required customization fields cannot be used as a gift.', DiscountConstraintException::INVALID_GIFT_PRODUCT);
                 }
