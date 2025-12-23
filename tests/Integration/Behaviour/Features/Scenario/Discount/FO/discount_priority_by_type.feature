@@ -27,7 +27,7 @@ Feature: Discount priority by type
       | valid_to          | 2026-12-31 23:59:59 |
       | code              | PROD10              |
       | reduction_percent | 10.0                |
-      | reduction_product | cheapest_product    |
+      | cheapest_product  | true                |
       | compatible_types  | cart_level          |
 
     # CART_LEVEL Discount - Priority 1 (higher field priority): $20 OFF cart
@@ -86,7 +86,7 @@ Feature: Discount priority by type
       | valid_to          | 2026-12-31 23:59:59     |
       | code              | PROD5                   |
       | reduction_percent | 5.0                     |
-      | reduction_product | cheapest_product        |
+      | cheapest_product  | true                    |
       | compatible_types  | cart_level              |
 
     # CART_LEVEL Discount 1 - Priority 2: $10 OFF cart (higher field priority)

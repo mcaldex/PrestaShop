@@ -32,10 +32,10 @@ use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\AbstractObjectModelValidator;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
 use PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\AddDiscountCommand;
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
+use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use PrestaShopException;
@@ -52,6 +52,9 @@ class DiscountValidator extends AbstractObjectModelValidator
     ) {
     }
 
+    /**
+     * Repository is injected via a setter to avoid circular injection problems
+     */
     public function setDiscountRepository(DiscountRepository $discountRepository): void
     {
         $this->discountRepository = $discountRepository;
@@ -104,41 +107,60 @@ class DiscountValidator extends AbstractObjectModelValidator
     /**
      * @throws DiscountConstraintException
      */
-    public function validateDiscountPropertiesForType(string $discountType, AddDiscountCommand|UpdateDiscountCommand $command)
+    public function validateDiscountPropertiesForType(CartRule $discount, ?array $productConditions): void
     {
+        $discountType = $discount->getType();
+        $hasReductionAmount = !empty($discount->reduction_amount) && !(new DecimalNumber((string) $discount->reduction_amount))->equalsZero() && ((int) $discount->reduction_currency !== 0);
+        $hasReductionPercent = !empty($discount->reduction_percent) && !(new DecimalNumber((string) $discount->reduction_percent))->equalsZero();
+
         switch ($discountType) {
             case DiscountType::FREE_SHIPPING:
                 break;
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                if ($command->getAmountDiscount() !== null && $command->getPercentDiscount() !== null) {
+                if ($hasReductionAmount && $hasReductionPercent) {
                     throw new DiscountConstraintException('Discount can not be amount and percent at the same time', DiscountConstraintException::INVALID_DISCOUNT_CANNOT_BE_AMOUNT_AND_PERCENT);
                 }
-                if ($command->getAmountDiscount() !== null) {
-                    if ($command->getAmountDiscount()->getAmount()->isLowerThanZero()) {
+                if ($hasReductionAmount) {
+                    if ($discount->reduction_amount < 0) {
                         throw new DiscountConstraintException('Discount value can not be negative', DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
                     }
                 }
-                if ($command->getPercentDiscount() !== null) {
-                    if ($command->getPercentDiscount()->isLowerThanZero() || $command->getPercentDiscount()->isGreaterThan(new DecimalNumber('100'))) {
+                if ($hasReductionPercent) {
+                    if ($discount->reduction_percent < 0 || $discount->reduction_percent > 100) {
                         throw new DiscountConstraintException('Discount value can not be negative or above 100', DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
                     }
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                if ($command->getReductionProduct() === 0) {
-                    throw new DiscountConstraintException('Product discount must have reduction product set.', DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES);
+                $segmentTargeted = false;
+                if (!empty($productConditions)) {
+                    foreach ($productConditions as $productCondition) {
+                        if (!$productCondition->isEmpty()) {
+                            $segmentTargeted = true;
+                            break;
+                        }
+                    }
                 }
+                $discountCheapestProduct = $discount->reduction_product === DiscountSettings::CHEAPEST_PRODUCT;
+                if (!$discountCheapestProduct && !$segmentTargeted) {
+                    throw new DiscountConstraintException('Product discount must target at least one product.', DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_MISSING_TARGET);
+                }
+                if ($discountCheapestProduct && $segmentTargeted) {
+                    throw new DiscountConstraintException('You need to choose between cheapest product or product segment.', DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_INCOMPATIBLE_TARGETS);
+                }
+
                 // Must have either amount or percent discount
-                if ($command->getAmountDiscount() === null && $command->getPercentDiscount() === null) {
-                    throw new DiscountConstraintException('Product discount must have a discount value (amount or percent).', DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES);
+                if (!$hasReductionAmount && !$hasReductionPercent) {
+                    throw new DiscountConstraintException('Product discount must have a discount value (amount or percent).', DiscountConstraintException::INVALID_MISSING_REDUCTION);
                 }
                 break;
             case DiscountType::FREE_GIFT:
-                if ($command->getGiftProductId() === null) {
+                if (empty($discount->gift_product)) {
                     throw new DiscountConstraintException('Free gift discount must have his properties set.', DiscountConstraintException::INVALID_FREE_GIFT_DISCOUNT_PROPERTIES);
                 }
-                $product = $this->productRepository->getByShopConstraint($command->getGiftProductId(), ShopConstraint::allShops());
+
+                $product = $this->productRepository->getByShopConstraint(new ProductId((int) $discount->gift_product), ShopConstraint::allShops());
                 if ($product->customizable) {
                     throw new DiscountConstraintException('Product with required customization fields cannot be used as a gift.', DiscountConstraintException::INVALID_GIFT_PRODUCT);
                 }

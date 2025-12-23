@@ -32,6 +32,7 @@ use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountRepository;
 use PrestaShop\PrestaShop\Adapter\Discount\Repository\DiscountTypeRepository;
 use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsQueryHandler;
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryHandler\GetDiscountForEditingHandlerInterface;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
@@ -75,7 +76,7 @@ class GetDiscountForEditingHandler implements GetDiscountForEditingHandlerInterf
             (float) $cartRule->reduction_amount > 0.00 ? new DecimalNumber($cartRule->reduction_amount) : null,
             $cartRule->reduction_currency,
             $cartRule->reduction_tax,
-            $cartRule->reduction_product,
+            $cartRule->reduction_product === DiscountSettings::CHEAPEST_PRODUCT,
             $cartRule->gift_product,
             $cartRule->gift_product_attribute,
             $cartRule->minimum_product_quantity,

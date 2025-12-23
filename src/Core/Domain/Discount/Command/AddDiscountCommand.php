@@ -63,9 +63,11 @@ class AddDiscountCommand
     private ?Money $amountDiscount = null;
     private ?ProductId $giftProductId = null;
     private ?CombinationIdInterface $giftCombinationId = null;
-    private int $reductionProduct = 0;
+    private bool $cheapestProduct = false;
     private ?int $minimumProductsQuantity = null;
-
+    /**
+     * @var ProductRuleGroup[]|null
+     */
     private ?array $productConditions = null;
 
     private ?Money $minimumAmount = null;
@@ -332,25 +334,14 @@ class AddDiscountCommand
         return $this;
     }
 
-    public function getReductionProduct(): int
+    public function getCheapestProduct(): bool
     {
-        return $this->reductionProduct;
+        return $this->cheapestProduct;
     }
 
-    /**
-     * @param int $reductionProduct
-     *
-     * @return $this
-     *
-     * This can have several values
-     *  0 => The discount is not a Product discount
-     * -1 => The discounted product is the cheapest of the cart
-     * -2 => The discount is applied on a selection of product // this case is not yet handled.
-     * >0 => The productId of the discounted product
-     */
-    public function setReductionProduct(int $reductionProduct): self
+    public function setCheapestProduct(bool $cheapestProduct): self
     {
-        $this->reductionProduct = $reductionProduct;
+        $this->cheapestProduct = $cheapestProduct;
 
         return $this;
     }
@@ -393,6 +384,9 @@ class AddDiscountCommand
         return $this;
     }
 
+    /**
+     * @return ProductRuleGroup[]|null
+     */
     public function getProductConditions(): ?array
     {
         return $this->productConditions;

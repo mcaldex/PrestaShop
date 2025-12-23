@@ -47,6 +47,10 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountNotFoundException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRule;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroupType;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Query\GetDiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult\DiscountForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
@@ -101,6 +105,30 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     }
 
     /**
+     * @Then I should get an error that the discount target is missing
+     */
+    public function assertDiscountNoTarget(): void
+    {
+        $this->assertLastErrorIs(DiscountConstraintException::class, DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_MISSING_TARGET);
+    }
+
+    /**
+     * @Then I should get an error that the discount targets are incompatible
+     */
+    public function assertDiscountIncompatibleTargets(): void
+    {
+        $this->assertLastErrorIs(DiscountConstraintException::class, DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_INCOMPATIBLE_TARGETS);
+    }
+
+    /**
+     * @Then I should get an error that the discount reduction is missing
+     */
+    public function assertDiscountMissingReduction(): void
+    {
+        $this->assertLastErrorIs(DiscountConstraintException::class, DiscountConstraintException::INVALID_MISSING_REDUCTION);
+    }
+
+    /**
      * @Then discount :discountReference should have the following properties:
      *
      * @param string $discountReference
@@ -109,11 +137,18 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
     public function assertDiscount(string $discountReference, TableNode $tableNode): void
     {
         try {
-            // if discount already exists we assert all its expected properties
+            // If discount already exists we assert all its expected properties
+            $discountForEditing = $this->getDiscountForEditing($discountReference);
             $this->assertDiscountProperties(
-                $this->getDiscountForEditing($discountReference),
-                $this->localizeByRows($tableNode)
+                $discountForEditing,
+                $this->filterOutProductConditions($tableNode),
             );
+
+            // Now check product conditions if present
+            $productConditions = $this->parseProductConditions($tableNode);
+            if (null !== $productConditions) {
+                Assert::assertEquals($productConditions, $discountForEditing->getProductConditions());
+            }
         } catch (DiscountException $e) {
             $this->setLastException($e);
         }
@@ -150,7 +185,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
      */
     public function createDiscount(string $discountReference, string $discountType, TableNode $node): void
     {
-        $data = $this->localizeByRows($node);
+        $data = $this->filterOutProductConditions($node);
         $command = new AddDiscountCommand($discountType, $data['name']);
 
         if (isset($data['name'])) {
@@ -237,14 +272,8 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
 
         if ($command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL) {
-            if (!empty($data['reduction_product'])) {
-                if ($data['reduction_product'] === 'cheapest_product') {
-                    $command->setReductionProduct(DiscountSettings::CHEAPEST_PRODUCT);
-                } elseif ($data['reduction_product'] === 'product_segment') {
-                    $command->setReductionProduct(DiscountSettings::PRODUCT_SEGMENT);
-                } else {
-                    $command->setReductionProduct($this->getSharedStorage()->get($data['reduction_product']));
-                }
+            if (!empty($data['cheapest_product'])) {
+                $command->setCheapestProduct(PrimitiveUtils::castStringBooleanIntoBoolean($data['cheapest_product']));
             }
         }
 
@@ -264,6 +293,11 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
 
         if (isset($data['compatible_types'])) {
             $command->setCompatibleDiscountTypeIds($this->getDiscountTypeIds($data['compatible_types']));
+        }
+
+        $productConditions = $this->parseProductConditions($node);
+        if (null !== $productConditions) {
+            $command->setProductConditions($productConditions);
         }
 
         try {
@@ -297,7 +331,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
      */
     public function editDiscount(string $discountReference, TableNode $node): void
     {
-        $data = $this->localizeByRows($node);
+        $data = $this->filterOutProductConditions($node);
         $discountId = $this->getSharedStorage()->get($discountReference);
         $command = new UpdateDiscountCommand($discountId);
 
@@ -392,12 +426,8 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             }
         }
 
-        if (!empty($data['reduction_product'])) {
-            if ((int) $data['reduction_product'] === -1 || (int) $data['reduction_product'] === -2) {
-                $command->setReductionProduct((int) $data['reduction_product']);
-            } else {
-                $command->setReductionProduct($this->getSharedStorage()->get($data['reduction_product']));
-            }
+        if (!empty($data['cheapest_product'])) {
+            $command->setCheapestProduct(PrimitiveUtils::castStringBooleanIntoBoolean($data['cheapest_product']));
         }
 
         if (!empty($data['gift_product'])) {
@@ -413,6 +443,10 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
         if (isset($data['compatible_types'])) {
             $command->setCompatibleDiscountTypeIds($this->getDiscountTypeIds($data['compatible_types']));
+        }
+        $productConditions = $this->parseProductConditions($node);
+        if (null !== $productConditions) {
+            $command->setProductConditions($productConditions);
         }
 
         try {
@@ -545,14 +579,8 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         if (isset($expectedData['type'])) {
             Assert::assertSame($expectedData['type'], $discountForEditing->getType()->getValue(), 'Unexpected type');
         }
-        if (isset($expectedData['reduction_product'])) {
-            if ($expectedData['reduction_product'] === 'cheapest_product') {
-                Assert::assertSame(DiscountSettings::CHEAPEST_PRODUCT, $discountForEditing->getReductionProduct());
-            } elseif ($expectedData['reduction_product'] === 'product_segment') {
-                Assert::assertSame(DiscountSettings::PRODUCT_SEGMENT, $discountForEditing->getReductionProduct());
-            } else {
-                Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_product']), $discountForEditing->getReductionProduct());
-            }
+        if (isset($expectedData['cheapest_product'])) {
+            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['cheapest_product']), $discountForEditing->getCheapestProduct(), 'Unexpected cheapest_product');
         }
         if (isset($expectedData['name'])) {
             Assert::assertSame($expectedData['name'], $discountForEditing->getLocalizedNames());
@@ -765,5 +793,79 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
 
         return (int) $this->getSharedStorage()->get(self::DISCOUNT_TYPE_PREFIX . $discountType);
+    }
+
+    private function parseProductConditions(TableNode $node): ?array
+    {
+        $quantity = 0;
+        $productRules = [];
+        $testingProductRules = false;
+        foreach ($node->getRows() as $tableRow) {
+            $key = $tableRow[0];
+            if (!str_starts_with($key, 'productCondition')) {
+                continue;
+            }
+
+            $testingProductRules = true;
+            if ($key === 'productConditionQuantity') {
+                $quantity = (int) $tableRow[1];
+                continue;
+            }
+
+            // Get type of condition: productCondition[conditionType]
+            preg_match('/productCondition\[(.+)\]/', $key, $matches);
+            if (empty($matches)) {
+                continue;
+            }
+
+            $conditionType = ProductRuleType::from($matches[1]);
+            $productRules[] = new ProductRule(
+                $conditionType,
+                $this->referencesToIds($tableRow[1]),
+            );
+        }
+
+        if (!$testingProductRules) {
+            return null;
+        }
+
+        // No rules defined
+        if ($quantity <= 0 && empty($productRules)) {
+            return [];
+        }
+
+        if ($quantity <= 0) {
+            throw new RuntimeException('You must define the productConditionQuantity');
+        }
+        if (empty($productRules)) {
+            throw new RuntimeException('No product conditions defined');
+        }
+        // This matches the current business rule for the new form, a discount can have multiple criteria that are more and more
+        // restrictive, each different rule adds more restriction and the quantity is the same To implement this behaviour we use
+        // the new ProductRuleGroupType, when type is ProductRuleGroupType::ALL_PRODUCT_RULES all the product rules must be valid
+        // for the whole product rule group to be valid
+        // So far we only handle one product rule group (or one product segment) to match the form behaviour
+
+        return [
+            new ProductRuleGroup(
+                $quantity,
+                $productRules,
+                ProductRuleGroupType::ALL_PRODUCT_RULES
+            ),
+        ];
+    }
+
+    private function filterOutProductConditions(TableNode $node): array
+    {
+        $rowData = $node->getRowsHash();
+
+        // Filter out productConditions[productType] fields because they cause bugs when parsing localized row
+        foreach (array_keys($rowData) as $rowKey) {
+            if (str_starts_with($rowKey, 'productCondition')) {
+                unset($rowData[$rowKey]);
+            }
+        }
+
+        return $this->parseLocalizedRow($rowData);
     }
 }

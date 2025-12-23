@@ -39,6 +39,8 @@ use Symfony\Component\Validator\Constraints\When;
 class ProductConditionsType extends TranslatorAwareType
 {
     public const NONE = 'none';
+
+    public const CHEAPEST_PRODUCT = 'cheapest_product';
     public const SPECIFIC_PRODUCTS = 'specific_products';
     public const PRODUCT_SEGMENT = 'product_segment';
 
@@ -48,6 +50,9 @@ class ProductConditionsType extends TranslatorAwareType
         $builder
             ->add(self::NONE, HiddenType::class, [
                 'label' => $this->trans('None', 'Admin.Catalog.Feature'),
+            ])
+            ->add(self::CHEAPEST_PRODUCT, HiddenType::class, [
+                'label' => $this->trans('Cheapest product', 'Admin.Catalog.Feature'),
             ])
             ->add(self::SPECIFIC_PRODUCTS, ProductSearchType::class, [
                 'layout' => EntitySearchInputType::LIST_LAYOUT,

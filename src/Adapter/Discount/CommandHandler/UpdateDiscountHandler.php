@@ -54,9 +54,8 @@ class UpdateDiscountHandler implements UpdateDiscountCommandHandlerInterface
     public function handle(UpdateDiscountCommand $command): void
     {
         $cartRule = $this->discountRepository->get($command->getDiscountId());
-        $this->discountValidator->validateDiscountPropertiesForType($cartRule->getType(), $command);
-
         $updatableProperties = $this->discountFiller->fillUpdatableProperties($cartRule, $command);
+        $this->discountValidator->validateDiscountPropertiesForType($cartRule, $command->getProductConditions());
         $this->discountRepository->partialUpdate(
             $cartRule,
             $updatableProperties,

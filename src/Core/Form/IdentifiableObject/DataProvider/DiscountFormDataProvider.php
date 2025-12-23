@@ -157,6 +157,8 @@ class DiscountFormDataProvider implements FormDataProviderInterface
             $selectedProductCondition = ProductConditionsType::SPECIFIC_PRODUCTS;
         } elseif ($productSegmentDefined) {
             $selectedProductCondition = ProductConditionsType::PRODUCT_SEGMENT;
+        } elseif ($discountForEditing->getCheapestProduct()) {
+            $selectedProductCondition = ProductConditionsType::CHEAPEST_PRODUCT;
         }
 
         if ($discountForEditing->getMinimumProductQuantity()) {

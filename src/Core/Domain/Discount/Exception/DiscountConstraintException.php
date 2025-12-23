@@ -36,7 +36,7 @@ class DiscountConstraintException extends DiscountException
     public const INVALID_QUANTITY = 6;
     public const INVALID_QUANTITY_PER_USER = 7;
     public const INVALID_GIFT_PRODUCT = 8;
-    public const INVALID_PRODUCT_DISCOUNT_PROPERTIES = 9;
+    public const INVALID_MISSING_REDUCTION = 9;
     public const INVALID_ID = 10;
     public const INVALID_NAME = 11;
     public const INVALID_STATUS = 12;
@@ -75,4 +75,6 @@ class DiscountConstraintException extends DiscountException
     public const INVALID_PRODUCTS_CONDITIONS = 45;
     public const INVALID_SPECIFIC_PRODUCTS = 46;
     public const INVALID_COMPATIBLE_TYPE_IDS = 47;
+    public const INVALID_PRODUCT_DISCOUNT_MISSING_TARGET = 48;
+    public const INVALID_PRODUCT_DISCOUNT_INCOMPATIBLE_TARGETS = 49;
 }

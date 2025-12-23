@@ -92,13 +92,6 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                if (!isset($data['value']['reduction']['type'])) {
-                    throw new DiscountConstraintException(
-                        'Discount value is required for catalog products discount.',
-                        DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES
-                    );
-                }
-
                 if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
                     $command->setAmountDiscount(
                         new DecimalNumber((string) $data['value']['reduction']['value']),
@@ -111,17 +104,9 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                     throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
 
-                // Read selected product from Product Conditions → Cart Conditions → Specific Products
-                $reductionProduct = -2; // Default: use product conditions (selection of products)
-                if (!empty($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['specific_products'])) {
-                    $specificProducts = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['specific_products'];
-                    if (count($specificProducts) === 1 && isset($specificProducts[0]['id'])) {
-                        // Single specific product selected
-                        $reductionProduct = (int) $specificProducts[0]['id'];
-                    }
-                    // If multiple products selected, keep -2 (selection of products)
+                if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
+                    $command->setCheapestProduct(true);
                 }
-                $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
                 $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
@@ -199,13 +184,6 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                if (!isset($data['value']['reduction']['type'])) {
-                    throw new DiscountConstraintException(
-                        'Discount value is required for catalog products discount.',
-                        DiscountConstraintException::INVALID_PRODUCT_DISCOUNT_PROPERTIES
-                    );
-                }
-
                 if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
                     $command->setAmountDiscount(
                         new DecimalNumber((string) $data['value']['reduction']['value']),
@@ -218,17 +196,9 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                     throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
                 }
 
-                // Read selected product from Product Conditions → Cart Conditions → Specific Products
-                $reductionProduct = -2; // Default: use product conditions (selection of products)
-                if (!empty($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['specific_products'])) {
-                    $specificProducts = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['specific_products'];
-                    if (count($specificProducts) === 1 && isset($specificProducts[0]['id'])) {
-                        // Single specific product selected
-                        $reductionProduct = (int) $specificProducts[0]['id'];
-                    }
-                    // If multiple products selected, keep -2 (selection of products)
+                if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
+                    $command->setCheapestProduct(true);
                 }
-                $command->setReductionProduct($reductionProduct);
                 break;
             case DiscountType::FREE_GIFT:
                 $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));

@@ -65,4 +65,23 @@ class ProductRuleGroup
     {
         return $this->type;
     }
+
+    public function isEmpty(): bool
+    {
+        if ($this->getQuantity() <= 0) {
+            return true;
+        }
+
+        if (empty($this->getRules())) {
+            return true;
+        }
+
+        foreach ($this->getRules() as $rule) {
+            if (!empty($rule->getItemIds())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

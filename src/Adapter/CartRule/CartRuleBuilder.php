@@ -86,13 +86,8 @@ class CartRuleBuilder
         }
 
         if ($command->getDiscountType()->getValue() === DiscountType::PRODUCT_LEVEL) {
-            if ($command->getReductionProduct() > 0) {
-                // Single product selection
-                $cartRule->reduction_product = $command->getReductionProduct();
-            } elseif ($command->getReductionProduct() === DiscountSettings::CHEAPEST_PRODUCT) {
-                // Cheapest product is the target
-                $cartRule->reduction_product = DiscountSettings::CHEAPEST_PRODUCT;
-            }
+            // If cheapest product is enabled we set the specific value, if not we use 0 as the no target value
+            $cartRule->reduction_product = $command->getCheapestProduct() ? DiscountSettings::CHEAPEST_PRODUCT : 0;
         }
 
         return $cartRule;

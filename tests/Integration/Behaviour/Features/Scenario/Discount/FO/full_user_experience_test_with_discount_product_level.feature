@@ -27,7 +27,7 @@ Feature: Full UX discount test
       | valid_to          | 2026-12-01 00:00:00 |
       | code              | PROMO_CART_2025_2   |
       | reduction_percent | 50.0                |
-      | reduction_product | cheapest_product    |
+      | cheapest_product  | true                |
     And discount "complete_percent_product_level_discount" should have the following properties:
       | name[en-US]       | Promotion           |
       | name[fr-FR]       | Promotion_fr        |
@@ -36,7 +36,7 @@ Feature: Full UX discount test
       | valid_to          | 2026-12-01 00:00:00 |
       | code              | PROMO_CART_2025_2   |
       | reduction_percent | 50.0                |
-      | reduction_product | cheapest_product    |
+      | cheapest_product  | true                |
     And I add 1 product "product1" to the cart "dummy_cart"
     And I add 1 product "product2" to the cart "dummy_cart"
     And cart "dummy_cart" total with tax included should be '$46.81'
@@ -52,23 +52,25 @@ Feature: Full UX discount test
     Given I create an empty cart "dummy_cart_2" for customer "testCustomer2"
     And there is a product in the catalog named "product3" with a price of 19.9 and 1000 items in stock
     When I create a "product_level" discount "complete_percent_product_level_discount" with following properties:
-      | name[en-US]       | Promotion2          |
-      | name[fr-FR]       | Promotion_2_fr      |
-      | active            | true                |
-      | valid_from        | 2025-01-01 11:05:00 |
-      | valid_to          | 2026-12-01 00:00:00 |
-      | code              | PROMO_CART_2025_3   |
-      | reduction_percent | 50.0                |
-      | reduction_product | product3            |
+      | name[en-US]                | Promotion2          |
+      | name[fr-FR]                | Promotion_2_fr      |
+      | active                     | true                |
+      | valid_from                 | 2025-01-01 11:05:00 |
+      | valid_to                   | 2026-12-01 00:00:00 |
+      | code                       | PROMO_CART_2025_3   |
+      | reduction_percent          | 50.0                |
+      | productConditionQuantity   | 1                   |
+      | productCondition[products] | product3            |
     And discount "complete_percent_product_level_discount" should have the following properties:
-      | name[en-US]       | Promotion2          |
-      | name[fr-FR]       | Promotion_2_fr      |
-      | active            | true                |
-      | valid_from        | 2025-01-01 11:05:00 |
-      | valid_to          | 2026-12-01 00:00:00 |
-      | code              | PROMO_CART_2025_3   |
-      | reduction_percent | 50.0                |
-      | reduction_product | product3            |
+      | name[en-US]                | Promotion2          |
+      | name[fr-FR]                | Promotion_2_fr      |
+      | active                     | true                |
+      | valid_from                 | 2025-01-01 11:05:00 |
+      | valid_to                   | 2026-12-01 00:00:00 |
+      | code                       | PROMO_CART_2025_3   |
+      | reduction_percent          | 50.0                |
+      | productConditionQuantity   | 1                   |
+      | productCondition[products] | product3            |
     And I add 1 product "product3" to the cart "dummy_cart_2"
     And cart "dummy_cart_2" total with tax included should be '$26.90'
     And I use a voucher "complete_percent_product_level_discount" on the cart "dummy_cart_2"

@@ -92,14 +92,15 @@ Feature: Discount compatibility in cart
   Scenario: Apply compatible product level and cart level discounts
     Given I create an empty cart "dummy_cart4" for customer "testCustomer"
     When I create a "product_level" discount "product_discount" with following properties:
-      | name[en-US]       | Product 15% Off     |
-      | active            | true                |
-      | valid_from        | 2025-01-01 00:00:00 |
-      | valid_to          | 2026-12-31 23:59:59 |
-      | code              | PROD15              |
-      | reduction_percent | 15.0                |
-      | reduction_product | product1            |
-      | compatible_types  | cart_level          |
+      | name[en-US]                | Product 15% Off     |
+      | active                     | true                |
+      | valid_from                 | 2025-01-01 00:00:00 |
+      | valid_to                   | 2026-12-31 23:59:59 |
+      | code                       | PROD15              |
+      | reduction_percent          | 15.0                |
+      | productConditionQuantity   | 1                   |
+      | productCondition[products] | product1            |
+      | compatible_types           | cart_level          |
     When I create a "cart_level" discount "cart_for_product" with following properties:
       | name[en-US]       | Cart with Product   |
       | active            | true                |
@@ -146,14 +147,15 @@ Feature: Discount compatibility in cart
       | reduction_percent | 5.0                          |
       | compatible_types  | product_level, free_shipping |
     When I create a "product_level" discount "multi_product" with following properties:
-      | name[en-US]       | Multi Product 10%         |
-      | active            | true                      |
-      | valid_from        | 2025-01-01 00:00:00       |
-      | valid_to          | 2026-12-31 23:59:59       |
-      | code              | MULTIPROD10               |
-      | reduction_percent | 10.0                      |
-      | reduction_product | product1                  |
-      | compatible_types  | cart_level, free_shipping |
+      | name[en-US]                | Multi Product 10%         |
+      | active                     | true                      |
+      | valid_from                 | 2025-01-01 00:00:00       |
+      | valid_to                   | 2026-12-31 23:59:59       |
+      | code                       | MULTIPROD10               |
+      | reduction_percent          | 10.0                      |
+      | productConditionQuantity   | 1                         |
+      | productCondition[products] | product1                  |
+      | compatible_types           | cart_level, free_shipping |
     When I create a "free_shipping" discount "multi_ship" with following properties:
       | name[en-US]      | Multi Free Ship           |
       | active           | true                      |
@@ -224,14 +226,15 @@ Feature: Discount compatibility in cart
       | reduction_percent | 20.0                |
       | compatible_types  | cart_level          |
     When I create a "product_level" discount "product_25" with following properties:
-      | name[en-US]       | Product 25% Off     |
-      | active            | true                |
-      | valid_from        | 2025-01-01 00:00:00 |
-      | valid_to          | 2026-12-31 23:59:59 |
-      | code              | PROD25              |
-      | reduction_percent | 25.0                |
-      | reduction_product | product1            |
-      | compatible_types  | free_shipping       |
+      | name[en-US]                | Product 25% Off     |
+      | active                     | true                |
+      | valid_from                 | 2025-01-01 00:00:00 |
+      | valid_to                   | 2026-12-31 23:59:59 |
+      | code                       | PROD25              |
+      | reduction_percent          | 25.0                |
+      | productConditionQuantity   | 1                   |
+      | productCondition[products] | product1            |
+      | compatible_types           | free_shipping       |
     And I add 1 product "product1" to the cart "dummy_cart9"
     And I use a voucher "product_25" on the cart "dummy_cart9"
     When I use a voucher "order_20" on the cart "dummy_cart9"
@@ -256,7 +259,7 @@ Feature: Discount compatibility in cart
       | valid_to          | 2026-12-31 23:59:59 |
       | code              | PERCENT5            |
       | reduction_percent | 5.0                 |
-      | compatible_types   | cart_level          |
+      | compatible_types  | cart_level          |
     And I add 2 products "product1" to the cart "dummy_cart10"
     When I use a voucher "amount_discount" on the cart "dummy_cart10"
     And I use a voucher "percent_discount" on the cart "dummy_cart10"

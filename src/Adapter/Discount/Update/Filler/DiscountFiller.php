@@ -29,6 +29,7 @@ namespace PrestaShop\PrestaShop\Adapter\Discount\Update\Filler;
 use CartRule;
 use PrestaShop\PrestaShop\Adapter\Domain\LocalizedObjectModelTrait;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountCommand;
+use PrestaShop\PrestaShop\Core\Domain\Discount\DiscountSettings;
 use PrestaShop\PrestaShop\Core\Util\DateTime\DateTime as DateTimeUtil;
 
 class DiscountFiller
@@ -86,9 +87,27 @@ class DiscountFiller
             $cartRule->priority = $command->getPriority();
             $updatableProperties[] = 'priority';
         }
-        if ($command->isDirty('reductionProduct')) {
-            $cartRule->reduction_product = $command->getReductionProduct();
+        if ($command->isDirty('cheapestProduct')) {
+            // If cheapest product is enabled we set the specific value, if not we use 0 as the no target value
+            $cartRule->reduction_product = $command->getCheapestProduct() ? DiscountSettings::CHEAPEST_PRODUCT : 0;
             $updatableProperties[] = 'reduction_product';
+        }
+
+        // If a segment id being targeted we stop using the cheapest product (or the validator will trigger an error)
+        // but only if the command isn't modifying the cheapest product target as well
+        if (null !== $command->getProductConditions() && null === $command->getCheapestProduct()) {
+            $segmentTargeted = false;
+            foreach ($command->getProductConditions() as $productCondition) {
+                if (!$productCondition->isEmpty()) {
+                    $segmentTargeted = true;
+                    break;
+                }
+            }
+
+            if ($segmentTargeted) {
+                $cartRule->reduction_product = DiscountSettings::PRODUCT_SEGMENT;
+                $updatableProperties[] = 'reduction_product';
+            }
         }
         if ($command->isDirty('amountDiscount')) {
             $cartRule->reduction_amount = (float) (string) $command->getAmountDiscount()->getAmount();
