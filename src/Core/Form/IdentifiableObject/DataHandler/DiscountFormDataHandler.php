@@ -74,83 +74,9 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         // For the moment the names are not sent by the form so we continue to generate it as we did later in the method.
         $discountType = $data['information']['discount_type'];
         $command = new AddDiscountCommand($discountType, $data['information']['names'] ?? []);
-        switch ($discountType) {
-            case DiscountType::FREE_SHIPPING:
-                break;
-            case DiscountType::CART_LEVEL:
-            case DiscountType::ORDER_LEVEL:
-                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
-                    $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['value']['reduction']['value']),
-                        (int) $data['value']['reduction']['currency'],
-                        (bool) $data['value']['reduction']['include_tax']
-                    );
-                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
-                } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
-                }
-                break;
-            case DiscountType::PRODUCT_LEVEL:
-                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
-                    $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['value']['reduction']['value']),
-                        (int) $data['value']['reduction']['currency'],
-                        (bool) $data['value']['reduction']['include_tax']
-                    );
-                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
-                } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
-                }
-
-                if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
-                    $command->setCheapestProduct(true);
-                }
-                break;
-            case DiscountType::FREE_GIFT:
-                $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
-                $command->setGiftCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
-                break;
-            default:
-                throw new RuntimeException('Unknown discount type ' . $discountType);
-        }
 
         $command->setActive(true);
-
-        $command->setDescription($data['information']['description'] ?? '');
-
-        if ($data['usability']['mode']['children_selector'] === DiscountUsabilityModeType::CODE_MODE) {
-            $command->setCode($data['usability']['mode']['code'] ?? '');
-        } else {
-            $command->setCode('');
-        }
-
-        if (!empty($data['period']['valid_date_range'])) {
-            $dateRange = $data['period']['valid_date_range'];
-            $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
-
-            $neverExpires = !empty($data['period']['period_never_expires']);
-            if ($neverExpires) {
-                $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
-                $validTo = DateTimeImmutable::createFromMutable($validTo);
-            } else {
-                $validTo = $this->parseDateWithDefaultTime($dateRange['to'] ?? null, '23:59');
-            }
-
-            if ($validFrom && $validTo) {
-                $command->setValidityDateRange($validFrom, $validTo);
-            }
-        }
-
-        $this->handleCustomerEligibility($command, $data);
-
-        if (isset($data['usability']['priority']) && $data['usability']['priority'] > 0) {
-            $command->setPriority((int) $data['usability']['priority']);
-        }
-        $command->setCompatibleDiscountTypeIds(array_unique($data['usability']['compatibility'] ?? []));
-
-        $this->updateDiscountConditions($command, $data);
+        $this->fillCommandFromData($command, $data);
 
         /** @var DiscountId $discountId */
         $discountId = $this->commandBus->handle($command);
@@ -166,36 +92,38 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
     public function update($id, array $data): void
     {
         $command = new UpdateDiscountCommand($id);
+
+        $command->setLocalizedNames($data['information']['names']);
+
+        $this->fillCommandFromData($command, $data);
+
+        $this->commandBus->handle($command);
+    }
+
+    /**
+     * Fill command properties from form data (common to create and update).
+     *
+     * @param AddDiscountCommand|UpdateDiscountCommand $command
+     * @param array $data
+     *
+     * @throws CurrencyException
+     * @throws DiscountConstraintException
+     * @throws DomainConstraintException
+     */
+    private function fillCommandFromData(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
+    {
         $discountType = $data['information']['discount_type'];
+
+        // Handle discount value based on type
         switch ($discountType) {
             case DiscountType::FREE_SHIPPING:
+                break;
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
-                    $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['value']['reduction']['value']),
-                        $data['value']['reduction']['currency'],
-                        (bool) $data['value']['reduction']['include_tax']
-                    );
-                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
-                } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
-                }
+                $this->setDiscountValue($command, $data);
                 break;
             case DiscountType::PRODUCT_LEVEL:
-                if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
-                    $command->setAmountDiscount(
-                        new DecimalNumber((string) $data['value']['reduction']['value']),
-                        $data['value']['reduction']['currency'],
-                        (bool) $data['value']['reduction']['include_tax']
-                    );
-                } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-                    $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
-                } else {
-                    throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
-                }
-
+                $this->setDiscountValue($command, $data);
                 if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
                     $command->setCheapestProduct(true);
                 }
@@ -207,23 +135,24 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
         }
-        $command->setLocalizedNames($data['information']['names']);
+
+        // Set description
         $command->setDescription($data['information']['description'] ?? '');
 
+        // Set code
         if ($data['usability']['mode']['children_selector'] === DiscountUsabilityModeType::CODE_MODE) {
             $command->setCode($data['usability']['mode']['code'] ?? '');
         } else {
             $command->setCode('');
         }
 
+        // Set validity date range
         if (!empty($data['period']['valid_date_range'])) {
             $dateRange = $data['period']['valid_date_range'];
             $validFrom = $this->parseDateWithDefaultTime($dateRange['from'] ?? null, '00:00');
 
-            // Check if "never expires" checkbox is checked
             $neverExpires = !empty($data['period']['period_never_expires']);
             if ($neverExpires) {
-                // Set expiration date to 100 years in the future
                 $validTo = (new DateTime())->modify('+100 years')->setTime(23, 59, 59);
                 $validTo = DateTimeImmutable::createFromMutable($validTo);
             } else {
@@ -235,15 +164,47 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             }
         }
 
+        // Set customer eligibility
         $this->handleCustomerEligibility($command, $data);
 
+        // Set priority and compatibility
         if (isset($data['usability']['priority']) && $data['usability']['priority'] > 0) {
             $command->setPriority((int) $data['usability']['priority']);
         }
         $command->setCompatibleDiscountTypeIds(array_unique($data['usability']['compatibility'] ?? []));
 
+        // Quantity limitations
+        if (array_key_exists('quantity_total', $data['usability'])) {
+            $command->setTotalQuantity($data['usability']['quantity_total']);
+        }
+
+        if (array_key_exists('quantity_per_customer', $data['usability'])) {
+            $command->setQuantityPerUser($data['usability']['quantity_per_customer']);
+        }
+
+        // Set discount conditions
         $this->updateDiscountConditions($command, $data);
-        $this->commandBus->handle($command);
+    }
+
+    /**
+     * Set the discount value (amount or percent) on the command.
+     *
+     * @param AddDiscountCommand|UpdateDiscountCommand $command
+     * @param array $data
+     */
+    private function setDiscountValue(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
+    {
+        if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
+            $command->setAmountDiscount(
+                new DecimalNumber((string) $data['value']['reduction']['value']),
+                (int) $data['value']['reduction']['currency'],
+                (bool) $data['value']['reduction']['include_tax']
+            );
+        } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
+            $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
+        } else {
+            throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
+        }
     }
 
     private function updateDiscountConditions(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
@@ -350,28 +311,6 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
         if ($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS]['children_selector'] === DeliveryConditionsType::COUNTRY) {
             $command->setCountryIds($data['conditions'][DiscountConditionsType::DELIVERY_CONDITIONS][DeliveryConditionsType::COUNTRY]);
         }
-
-        // Customer eligibility conditions
-        if (isset($data['customer_eligibility']['eligibility'])) {
-            $customerEligibility = $data['customer_eligibility']['eligibility'];
-            $selectedOption = $customerEligibility['children_selector'] ?? DiscountCustomerEligibilityChoiceType::ALL_CUSTOMERS;
-
-            if ($selectedOption === DiscountCustomerEligibilityChoiceType::CUSTOMER_GROUPS) {
-                $groupIds = $this->extractCustomerGroupIds($customerEligibility[DiscountCustomerEligibilityChoiceType::CUSTOMER_GROUPS] ?? []);
-                $command->setCustomerGroupIds($groupIds);
-            } else {
-                $command->setCustomerGroupIds([]);
-            }
-        }
-
-        // Quantity conditions
-        if (array_key_exists('quantity_total', $data['usability'])) {
-            $command->setTotalQuantity($data['usability']['quantity_total']);
-        }
-
-        if (array_key_exists('quantity_per_customer', $data['usability'])) {
-            $command->setQuantityPerUser($data['usability']['quantity_per_customer']);
-        }
     }
 
     private function parseDateWithDefaultTime(?string $dateString, string $defaultTime): ?DateTimeImmutable
@@ -423,6 +362,14 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
             if (!empty($customerData) && isset($customerData[0]['id_customer'])) {
                 $command->setCustomerId((int) $customerData[0]['id_customer']);
             }
+            $command->setCustomerGroupIds([]);
+        } elseif ($selectedOption === DiscountCustomerEligibilityChoiceType::CUSTOMER_GROUPS) {
+            $groupIds = $this->extractCustomerGroupIds($customerEligibility[DiscountCustomerEligibilityChoiceType::CUSTOMER_GROUPS] ?? []);
+            $command->setCustomerGroupIds($groupIds);
+            $command->setCustomerId(0);
+        } else {
+            $command->setCustomerGroupIds([]);
+            $command->setCustomerId(0);
         }
     }
 

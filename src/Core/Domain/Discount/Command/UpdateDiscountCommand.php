@@ -34,6 +34,8 @@ use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\ValueObject\GroupId;
 use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\CustomerId;
+use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\CustomerIdInterface;
+use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\NoCustomerId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
@@ -61,7 +63,7 @@ class UpdateDiscountCommand
     private ?int $quantityPerUser = null;
     private ?string $description = null;
     private ?string $code = null;
-    private ?CustomerId $customerId = null;
+    private ?CustomerIdInterface $customerId = null;
     private ?bool $highlightInCart = null;
     private ?bool $allowPartialUse = null;
     private ?DecimalNumber $percentDiscount = null;
@@ -296,14 +298,14 @@ class UpdateDiscountCommand
         return $this;
     }
 
-    public function getCustomerId(): ?CustomerId
+    public function getCustomerId(): ?CustomerIdInterface
     {
         return $this->customerId;
     }
 
     public function setCustomerId(int $customerId): self
     {
-        $this->customerId = new CustomerId($customerId);
+        $this->customerId = $customerId === NoCustomerId::NO_CUSTOMER_ID_VALUE ? new NoCustomerId() : new CustomerId($customerId);
         $this->markDirty('customerId');
 
         return $this;
