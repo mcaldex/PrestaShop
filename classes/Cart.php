@@ -1867,7 +1867,7 @@ class CartCore extends ObjectModel
             if (!empty($product['is_gift'])
                 && (int) $product['id_product'] === (int) $id_product
                 && (int) $product['id_product_attribute'] === (int) $id_product_attribute) {
-                ++$giftCount;
+                $giftCount += (int) $product['quantity'];
             }
         }
 
