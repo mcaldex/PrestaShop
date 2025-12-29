@@ -1822,7 +1822,6 @@ class ToolsCore
 
                 throw new Exception($errorMessage);
             }
-
         }
 
         return $content;
