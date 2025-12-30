@@ -962,6 +962,7 @@ class FrontControllerCore extends Controller
      * Sets controller CSS and JS files.
      *
      * @return bool
+     *
      * @throws PrestaShopException
      */
     public function setMedia()
