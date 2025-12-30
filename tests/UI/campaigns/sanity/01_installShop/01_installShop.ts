@@ -3,7 +3,7 @@ import {expect} from 'chai';
 
 import {
   type BrowserContext,
-  foClassicHomePage,
+  foHummingbirdHomePage,
   installPage,
   type Page,
   utilsPlaywright,
@@ -227,7 +227,7 @@ describe('Install Prestashop', async () => {
 
     page = await installPage.goToFOAfterInstall(page);
 
-    const result = await foClassicHomePage.isHomePage(page);
+    const result = await foHummingbirdHomePage.isHomePage(page);
     expect(result).to.eq(true);
   });
 });
