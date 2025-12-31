@@ -64,7 +64,7 @@ class AddDiscountHandler implements AddDiscountHandlerInterface
 
         $this->discountConditionsUpdater->update(
             $newDiscountId,
-            $command->getMinimumProductsQuantity(),
+            $command->getMinimumProductQuantity(),
             $command->getProductConditions(),
             $command->getMinimumAmount(),
             $command->getMinimumAmountShippingIncluded(),

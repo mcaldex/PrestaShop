@@ -21,16 +21,16 @@ Feature: Discount priority - Compatible discounts
     And I add 1 product "product1" to the cart "cart1"
     # Priority 5 (applied second): Fixed $20 amount discount
     When I create a "cart_level" discount "code_amount_prio5" with following properties:
-      | name[en-US]        | Code Amount Priority 5 |
-      | active             | true                   |
-      | priority           | 5                      |
-      | valid_from         | 2025-01-01 10:00:00    |
-      | valid_to           | 2026-12-31 23:59:59    |
-      | code               | AMOUNT_CODE5           |
-      | reduction_amount   | 20.0                   |
-      | reduction_currency | usd                    |
-      | taxIncluded        | true                   |
-      | compatible_types   | cart_level             |
+      | name[en-US]            | Code Amount Priority 5 |
+      | active                 | true                   |
+      | priority               | 5                      |
+      | valid_from             | 2025-01-01 10:00:00    |
+      | valid_to               | 2026-12-31 23:59:59    |
+      | code                   | AMOUNT_CODE5           |
+      | reduction_amount       | 20.0                   |
+      | reduction_currency     | usd                    |
+      | reduction_tax_included | true                   |
+      | compatible_types       | cart_level             |
     # Priority 3 (applied first): 10% percentage discount
     When I create a "cart_level" discount "code_percent_prio3" with following properties:
       | name[en-US]       | Code Percent Priority 3 |

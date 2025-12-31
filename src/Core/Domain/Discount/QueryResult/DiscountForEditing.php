@@ -28,11 +28,15 @@ namespace PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult;
 
 use DateTimeImmutable;
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountType;
+use PrestaShop\PrestaShop\Core\Domain\ValueObject\Money;
 
 class DiscountForEditing
 {
+    private ?Money $reductionAmount;
+
     public function __construct(
         private readonly int $id,
         private readonly array $localizedNames,
@@ -48,10 +52,10 @@ class DiscountForEditing
         private readonly bool $highlightInCart,
         private readonly bool $allowPartialUse,
         private readonly string $type,
-        private readonly ?DecimalNumber $percentDiscount,
-        private readonly ?DecimalNumber $amountDiscount,
-        private readonly ?int $currencyId,
-        private readonly ?bool $taxIncluded,
+        private readonly ?DecimalNumber $reductionPercent,
+        ?DecimalNumber $reductionAmount,
+        ?int $reductionAmountCurrencyId,
+        ?bool $reductionAmountTaxIncluded,
         private readonly bool $cheapestProduct,
         private readonly ?int $giftProductId,
         private readonly ?int $giftCombinationId,
@@ -66,6 +70,9 @@ class DiscountForEditing
         private readonly array $customerGroupIds,
         private readonly array $compatibleDiscountTypeIds,
     ) {
+        if ($reductionAmount && $reductionAmountCurrencyId && $reductionAmountTaxIncluded) {
+            $this->reductionAmount = new Money($reductionAmount, new CurrencyId($reductionAmountCurrencyId), $reductionAmountTaxIncluded);
+        }
     }
 
     public function getDiscountId(): int
@@ -133,24 +140,14 @@ class DiscountForEditing
         return new DiscountType($this->type);
     }
 
-    public function getPercentDiscount(): ?DecimalNumber
+    public function getReductionPercent(): ?DecimalNumber
     {
-        return $this->percentDiscount;
+        return $this->reductionPercent;
     }
 
-    public function getAmountDiscount(): ?DecimalNumber
+    public function getReductionAmount(): ?Money
     {
-        return $this->amountDiscount;
-    }
-
-    public function getCurrencyId(): ?int
-    {
-        return $this->currencyId;
-    }
-
-    public function isTaxIncluded(): ?bool
-    {
-        return $this->taxIncluded;
+        return $this->reductionAmount;
     }
 
     public function getCheapestProduct(): bool

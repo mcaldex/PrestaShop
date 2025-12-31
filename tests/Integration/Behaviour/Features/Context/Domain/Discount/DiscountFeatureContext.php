@@ -263,12 +263,12 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             DiscountType::ORDER_LEVEL,
         ])) {
             if (!empty($data['reduction_percent'])) {
-                $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
+                $command->setReductionPercent(new DecimalNumber($data['reduction_percent']));
             }
 
             if (!empty($data['reduction_amount'])) {
                 try {
-                    $command->setAmountDiscount(
+                    $command->setReductionAmount(
                         new DecimalNumber($data['reduction_amount']),
                         $this->getSharedStorage()->get($data['reduction_currency']),
                         PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
@@ -323,7 +323,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
 
         if (isset($data['minimum_product_quantity'])) {
-            $command->setMinimumProductsQuantity((int) $data['minimum_product_quantity']);
+            $command->setMinimumProductQuantity((int) $data['minimum_product_quantity']);
         }
 
         if (isset($data['carriers'])) {
@@ -445,12 +445,12 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
         }
 
         if (!empty($data['reduction_percent'])) {
-            $command->setPercentDiscount(new DecimalNumber($data['reduction_percent']));
+            $command->setReductionPercent(new DecimalNumber($data['reduction_percent']));
         }
 
         if (!empty($data['reduction_amount'])) {
             try {
-                $command->setAmountDiscount(
+                $command->setReductionAmount(
                     new DecimalNumber($data['reduction_amount']),
                     $this->getSharedStorage()->get($data['reduction_currency']),
                     PrimitiveUtils::castStringBooleanIntoBoolean($data['taxIncluded']),
@@ -496,7 +496,7 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
             );
         }
         if (isset($data['minimum_product_quantity'])) {
-            $command->setMinimumProductsQuantity((int) $data['minimum_product_quantity']);
+            $command->setMinimumProductQuantity((int) $data['minimum_product_quantity']);
         }
 
         if (isset($data['carriers'])) {
@@ -623,28 +623,28 @@ class DiscountFeatureContext extends AbstractDomainFeatureContext
 
         if (isset($expectedData['reduction_percent'])) {
             if (empty($expectedData['reduction_percent'])) {
-                Assert::assertNull($discountForEditing->getPercentDiscount(), 'Expected percent discount to be null');
+                Assert::assertNull($discountForEditing->getReductionPercent(), 'Expected percent discount to be null');
             } else {
-                Assert::assertSame((float) $expectedData['reduction_percent'], (float) (string) $discountForEditing->getPercentDiscount(), 'Unexpected percent discount');
+                Assert::assertSame((float) $expectedData['reduction_percent'], (float) (string) $discountForEditing->getReductionPercent(), 'Unexpected percent discount');
             }
         }
 
         if (isset($expectedData['reduction_amount'])) {
             if (empty($expectedData['reduction_amount'])) {
-                Assert::assertNull($discountForEditing->getAmountDiscount(), 'Expected amount discount to be null');
+                Assert::assertNull($discountForEditing->getReductionAmount(), 'Expected amount discount to be null');
             } else {
-                Assert::assertSame((float) $expectedData['reduction_amount'], (float) (string) $discountForEditing->getAmountDiscount(), 'Unexpected amount discount');
+                Assert::assertSame((float) $expectedData['reduction_amount'], (float) (string) $discountForEditing->getReductionAmount(), 'Unexpected amount discount');
             }
         }
         if (isset($expectedData['reduction_currency'])) {
             if (empty($expectedData['reduction_currency'])) {
-                Assert::assertSame(0, $discountForEditing->getCurrencyId(), 'Unexpected reduction currency');
+                Assert::assertSame(0, $discountForEditing->getReductionAmountCurrencyId(), 'Unexpected reduction currency');
             } else {
-                Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_currency']), $discountForEditing->getCurrencyId(), 'Unexpected reduction currency');
+                Assert::assertSame($this->getSharedStorage()->get($expectedData['reduction_currency']), $discountForEditing->getReductionAmountCurrencyId(), 'Unexpected reduction currency');
             }
         }
         if (isset($expectedData['taxIncluded'])) {
-            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['taxIncluded']), $discountForEditing->isTaxIncluded(), 'Unexpected tax included');
+            Assert::assertSame(PrimitiveUtils::castStringBooleanIntoBoolean($expectedData['taxIncluded']), $discountForEditing->getReductionAmountTaxIncluded(), 'Unexpected tax included');
         }
         if (isset($expectedData['type'])) {
             Assert::assertSame($expectedData['type'], $discountForEditing->getType()->getValue(), 'Unexpected type');

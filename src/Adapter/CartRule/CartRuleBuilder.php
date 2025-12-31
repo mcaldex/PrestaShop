@@ -73,13 +73,13 @@ class CartRuleBuilder
             DiscountType::ORDER_LEVEL,
             DiscountType::PRODUCT_LEVEL]
         )) {
-            if ($command->getPercentDiscount()) {
-                $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
+            if ($command->getReductionPercent()) {
+                $cartRule->reduction_percent = (float) (string) $command->getReductionPercent();
             }
-            if ($command->getAmountDiscount()) {
-                $cartRule->reduction_amount = (float) (string) $command->getAmountDiscount()->getAmount();
-                $cartRule->reduction_currency = $command->getAmountDiscount()->getCurrencyId()->getValue();
-                $cartRule->reduction_tax = $command->getAmountDiscount()->isTaxIncluded();
+            if ($command->getReductionAmount()) {
+                $cartRule->reduction_amount = (float) (string) $command->getReductionAmount()->getAmount();
+                $cartRule->reduction_currency = $command->getReductionAmount()->getCurrencyId()->getValue();
+                $cartRule->reduction_tax = $command->getReductionAmount()->isTaxIncluded();
             }
         } elseif ($command->getDiscountType()->getValue() === DiscountType::FREE_GIFT) {
             $cartRule->gift_product = $command->getGiftProductId()?->getValue() ?? 0;

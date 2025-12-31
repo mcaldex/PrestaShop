@@ -195,13 +195,13 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
     private function setDiscountValue(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
     {
         if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
-            $command->setAmountDiscount(
+            $command->setReductionAmount(
                 new DecimalNumber((string) $data['value']['reduction']['value']),
                 (int) $data['value']['reduction']['currency'],
                 (bool) $data['value']['reduction']['include_tax']
             );
         } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-            $command->setPercentDiscount(new DecimalNumber((string) $data['value']['reduction']['value']));
+            $command->setReductionPercent(new DecimalNumber((string) $data['value']['reduction']['value']));
         } else {
             throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
         }
@@ -294,7 +294,7 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
         // Cart conditions
         if ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::MINIMUM_PRODUCT_QUANTITY) {
-            $command->setMinimumProductsQuantity($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_product_quantity']);
+            $command->setMinimumProductQuantity($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_product_quantity']);
         } elseif ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::MINIMUM_AMOUNT) {
             $command->setMinimumAmount(
                 new DecimalNumber((string) $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['value']),

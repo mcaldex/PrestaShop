@@ -137,7 +137,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
     {
         /** @var DiscountForEditing $discountForEditing */
         $discountForEditing = $this->queryBus->handle(new GetDiscountForEditing($id));
-        $isAmountDiscount = $discountForEditing->getAmountDiscount() !== null;
+        $isAmountDiscount = $discountForEditing->getReductionAmount() !== null;
         $details = $this->getGiftDetails($discountForEditing);
         $specificProducts = $this->getSpecificProducts($discountForEditing);
         $productSegment = $this->getProductSegmentDetails($discountForEditing);
@@ -184,10 +184,10 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                 'reduction' => [
                     'type' => $isAmountDiscount ? DiscountSettings::AMOUNT : DiscountSettings::PERCENT,
                     'value' => $isAmountDiscount
-                        ? (float) (string) $discountForEditing->getAmountDiscount()
-                        : (float) (string) $discountForEditing->getPercentDiscount(),
-                    'currency' => $discountForEditing->getCurrencyId(),
-                    'include_tax' => $discountForEditing->isTaxIncluded(),
+                        ? (float) (string) $discountForEditing->getReductionAmount()
+                        : (float) (string) $discountForEditing->getReductionPercent(),
+                    'currency' => $discountForEditing->getReductionAmountCurrencyId(),
+                    'include_tax' => $discountForEditing->getReductionAmountTaxIncluded(),
                 ],
             ],
             'free_gift' => [

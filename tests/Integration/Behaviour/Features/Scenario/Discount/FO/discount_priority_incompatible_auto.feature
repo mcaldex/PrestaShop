@@ -19,15 +19,15 @@ Feature: Discount priority - Incompatible auto discounts
   Scenario: Incompatible auto discounts - higher priority field wins
     # Priority 5 (lower priority): $25 amount discount
     When I create a "cart_level" discount "auto_incompat_amount_prio5" with following properties:
-      | name[en-US]        | Auto Incompatible Amount Priority 5 |
-      | active             | true                                |
-      | priority           | 5                                   |
-      | valid_from         | 2025-01-01 10:00:00                 |
-      | valid_to           | 2026-12-31 23:59:59                 |
-      | reduction_amount   | 25.0                                |
-      | reduction_currency | usd                                 |
-      | taxIncluded        | true                                |
-      | compatible_types   | product_level                       |
+      | name[en-US]            | Auto Incompatible Amount Priority 5 |
+      | active                 | true                                |
+      | priority               | 5                                   |
+      | valid_from             | 2025-01-01 10:00:00                 |
+      | valid_to               | 2026-12-31 23:59:59                 |
+      | reduction_amount       | 25.0                                |
+      | reduction_currency     | usd                                 |
+      | reduction_tax_included | true                                |
+      | compatible_types       | product_level                       |
     And I update discount "auto_incompat_amount_prio5" with the following properties:
       | minimum_amount                   | 1.00  |
       | minimum_amount_currency          | usd   |
@@ -41,7 +41,7 @@ Feature: Discount priority - Incompatible auto discounts
       | valid_from        | 2025-01-01 10:00:00                  |
       | valid_to          | 2026-12-31 23:59:59                  |
       | reduction_percent | 15.0                                 |
-      | compatible_types   | product_level                  |
+      | compatible_types  | product_level                        |
     And I update discount "auto_incompat_percent_prio3" with the following properties:
       | minimum_amount                   | 1.00  |
       | minimum_amount_currency          | usd   |

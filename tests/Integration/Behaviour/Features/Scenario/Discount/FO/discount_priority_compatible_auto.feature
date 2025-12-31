@@ -19,15 +19,15 @@ Feature: Discount priority - Compatible auto discounts
   Scenario: Compatible auto discounts - order matters (amount + percent)
     # Priority 5 (applied second): Fixed $20 amount discount
     When I create a "cart_level" discount "auto_amount_prio5" with following properties:
-      | name[en-US]        | Auto Amount Priority 5 |
-      | active             | true                   |
-      | priority           | 5                      |
-      | valid_from         | 2025-01-01 10:00:00    |
-      | valid_to           | 2026-12-31 23:59:59    |
-      | reduction_amount   | 20.0                   |
-      | reduction_currency | usd                    |
-      | taxIncluded        | true                   |
-      | compatible_types   | cart_level             |
+      | name[en-US]            | Auto Amount Priority 5 |
+      | active                 | true                   |
+      | priority               | 5                      |
+      | valid_from             | 2025-01-01 10:00:00    |
+      | valid_to               | 2026-12-31 23:59:59    |
+      | reduction_amount       | 20.0                   |
+      | reduction_currency     | usd                    |
+      | reduction_tax_included | true                   |
+      | compatible_types       | cart_level             |
     And I update discount "auto_amount_prio5" with the following properties:
       | minimum_amount                   | 1.00  |
       | minimum_amount_currency          | usd   |

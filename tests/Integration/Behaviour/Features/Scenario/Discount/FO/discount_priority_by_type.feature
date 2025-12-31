@@ -31,16 +31,16 @@ Feature: Discount priority by type
 
     # CART_LEVEL Discount - Priority 1 (higher field priority): $20 OFF cart
     When I create a "cart_level" discount "cart_20dollar_prio1" with following properties:
-      | name[en-US]        | Cart \$20 OFF       |
-      | active             | true                |
-      | priority           | 1                   |
-      | valid_from         | 2025-01-01 10:00:00 |
-      | valid_to           | 2026-12-31 23:59:59 |
-      | code               | CART20              |
-      | reduction_amount   | 20.0                |
-      | reduction_currency | usd                 |
-      | taxIncluded        | true                |
-      | compatible_types   | product_level       |
+      | name[en-US]            | Cart \$20 OFF       |
+      | active                 | true                |
+      | priority               | 1                   |
+      | valid_from             | 2025-01-01 10:00:00 |
+      | valid_to               | 2026-12-31 23:59:59 |
+      | code                   | CART20              |
+      | reduction_amount       | 20.0                |
+      | reduction_currency     | usd                 |
+      | reduction_tax_included | true                |
+      | compatible_types       | product_level       |
 
     # Create cart and add products BEFORE applying discounts
     Given I create an empty cart "cart_type_test" for customer "testCustomer"
@@ -90,29 +90,29 @@ Feature: Discount priority by type
 
     # CART_LEVEL Discount 1 - Priority 2: $10 OFF cart (higher field priority)
     When I create a "cart_level" discount "cart_10dollar_prio2" with following properties:
-      | name[en-US]        | Cart \$10 OFF (Prio 2)    |
-      | active             | true                      |
-      | priority           | 2                         |
-      | valid_from         | 2025-01-01 10:00:00       |
-      | valid_to           | 2026-12-31 23:59:59       |
-      | code               | CART10                    |
-      | reduction_amount   | 10.0                      |
-      | reduction_currency | usd                       |
-      | taxIncluded        | true                      |
-      | compatible_types   | product_level, cart_level |
+      | name[en-US]            | Cart \$10 OFF (Prio 2)    |
+      | active                 | true                      |
+      | priority               | 2                         |
+      | valid_from             | 2025-01-01 10:00:00       |
+      | valid_to               | 2026-12-31 23:59:59       |
+      | code                   | CART10                    |
+      | reduction_amount       | 10.0                      |
+      | reduction_currency     | usd                       |
+      | reduction_tax_included | true                      |
+      | compatible_types       | product_level, cart_level |
 
     # CART_LEVEL Discount 2 - Priority 4: $5 OFF cart (lower field priority, same type)
     When I create a "cart_level" discount "cart_5dollar_prio4" with following properties:
-      | name[en-US]        | Cart \$5 OFF (Prio 4)     |
-      | active             | true                      |
-      | priority           | 4                         |
-      | valid_from         | 2025-01-01 10:00:00       |
-      | valid_to           | 2026-12-31 23:59:59       |
-      | code               | CART5                     |
-      | reduction_amount   | 5.0                       |
-      | reduction_currency | usd                       |
-      | taxIncluded        | true                      |
-      | compatible_types   | product_level, cart_level |
+      | name[en-US]            | Cart \$5 OFF (Prio 4)     |
+      | active                 | true                      |
+      | priority               | 4                         |
+      | valid_from             | 2025-01-01 10:00:00       |
+      | valid_to               | 2026-12-31 23:59:59       |
+      | code                   | CART5                     |
+      | reduction_amount       | 5.0                       |
+      | reduction_currency     | usd                       |
+      | reduction_tax_included | true                      |
+      | compatible_types       | product_level, cart_level |
 
     # FREE_SHIPPING Discount - Priority 1 (highest field priority)
     When I create a "free_shipping" discount "free_ship_prio1" with following properties:

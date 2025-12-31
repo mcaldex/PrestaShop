@@ -111,24 +111,24 @@ class DiscountFiller
             }
         }
 
-        if ($command->isDirty('amountDiscount')) {
-            $cartRule->reduction_amount = (float) (string) $command->getAmountDiscount()->getAmount();
-            $cartRule->reduction_currency = $command->getAmountDiscount()->getCurrencyId()->getValue();
-            $cartRule->reduction_tax = $command->getAmountDiscount()->isTaxIncluded();
+        if ($command->isDirty('reductionAmount') && null !== $command->getReductionAmount()) {
+            $cartRule->reduction_amount = (float) (string) $command->getReductionAmount()->getAmount();
+            $cartRule->reduction_currency = $command->getReductionAmount()->getCurrencyId()->getValue();
+            $cartRule->reduction_tax = $command->getReductionAmount()->isTaxIncluded();
             $updatableProperties[] = 'reduction_amount';
             $updatableProperties[] = 'reduction_currency';
             $updatableProperties[] = 'reduction_tax';
 
-            if (null === $command->getPercentDiscount()) {
+            if (!$command->isDirty('reductionPercent')) {
                 $cartRule->reduction_percent = null;
                 $updatableProperties[] = 'reduction_percent';
             }
         }
-        if ($command->isDirty('percentDiscount')) {
-            $cartRule->reduction_percent = (float) (string) $command->getPercentDiscount();
+        if ($command->isDirty('reductionPercent')) {
+            $cartRule->reduction_percent = (float) (string) $command->getReductionPercent();
             $updatableProperties[] = 'reduction_percent';
 
-            if (null === $command->getAmountDiscount()) {
+            if (!$command->isDirty('reductionAmount')) {
                 $cartRule->reduction_amount = null;
                 $cartRule->reduction_currency = 0;
                 $cartRule->reduction_tax = false;

@@ -146,7 +146,7 @@ Feature: Full UX discount test
       | code                       | specific_product_fixed_price_discount |
       | reduction_amount           | 6.0                                   |
       | reduction_currency         | usd                                   |
-      | taxIncluded                | true                                  |
+      | reduction_tax_included     | true                                  |
       | productConditionQuantity   | 1                                     |
       | productCondition[products] | product3                              |
     And discount "specific_product_fixed_price_discount" should have the following properties:
@@ -159,7 +159,7 @@ Feature: Full UX discount test
       | reduction_percent          |                                       |
       | reduction_amount           | 6.0                                   |
       | reduction_currency         | usd                                   |
-      | taxIncluded                | true                                  |
+      | reduction_tax_included     | true                                  |
       | productConditionQuantity   | 1                                     |
       | productCondition[products] | product3                              |
     # Despite adding a cheaper product the discount is applied on product3
@@ -179,28 +179,28 @@ Feature: Full UX discount test
   Scenario: Create product level with 4$ discount on the cheapest product
     Given I create an empty cart "dummy_cart4" for customer "testCustomer"
     When I create a "product_level" discount "cheapest_product_fixed_price_discount" with following properties:
-      | name[en-US]        | Promotion4                            |
-      | name[fr-FR]        | Promotion_4_fr                        |
-      | active             | true                                  |
-      | valid_from         | 2025-01-01 11:05:00                   |
-      | valid_to           | 2026-12-01 00:00:00                   |
-      | code               | cheapest_product_fixed_price_discount |
-      | reduction_amount   | 4.0                                   |
-      | reduction_currency | usd                                   |
-      | taxIncluded        | true                                  |
-      | cheapest_product   | true                                  |
+      | name[en-US]            | Promotion4                            |
+      | name[fr-FR]            | Promotion_4_fr                        |
+      | active                 | true                                  |
+      | valid_from             | 2025-01-01 11:05:00                   |
+      | valid_to               | 2026-12-01 00:00:00                   |
+      | code                   | cheapest_product_fixed_price_discount |
+      | reduction_amount       | 4.0                                   |
+      | reduction_currency     | usd                                   |
+      | reduction_tax_included | true                                  |
+      | cheapest_product       | true                                  |
     And discount "cheapest_product_fixed_price_discount" should have the following properties:
-      | name[en-US]        | Promotion4                            |
-      | name[fr-FR]        | Promotion_4_fr                        |
-      | active             | true                                  |
-      | valid_from         | 2025-01-01 11:05:00                   |
-      | valid_to           | 2026-12-01 00:00:00                   |
-      | code               | cheapest_product_fixed_price_discount |
-      | reduction_percent  |                                       |
-      | reduction_amount   | 4.0                                   |
-      | reduction_currency | usd                                   |
-      | taxIncluded        | true                                  |
-      | cheapest_product   | true                                  |
+      | name[en-US]            | Promotion4                            |
+      | name[fr-FR]            | Promotion_4_fr                        |
+      | active                 | true                                  |
+      | valid_from             | 2025-01-01 11:05:00                   |
+      | valid_to               | 2026-12-01 00:00:00                   |
+      | code                   | cheapest_product_fixed_price_discount |
+      | reduction_percent      |                                       |
+      | reduction_amount       | 4.0                                   |
+      | reduction_currency     | usd                                   |
+      | reduction_tax_included | true                                  |
+      | cheapest_product       | true                                  |
     And I add 1 product "product1" to the cart "dummy_cart4"
     Then cart "dummy_cart4" total with tax included should be '$26.81'
     When I use a voucher "cheapest_product_fixed_price_discount" on the cart "dummy_cart4"
@@ -296,7 +296,7 @@ Feature: Full UX discount test
       | code                       | selected_products_fixed_price_discount |
       | reduction_amount           | 9.0                                    |
       | reduction_currency         | usd                                    |
-      | taxIncluded                | true                                   |
+      | reduction_tax_included     | true                                   |
       | productConditionQuantity   | 1                                      |
       | productCondition[products] | product1, product3, product4           |
     And discount "selected_products_fixed_price_discount" should have the following properties:
@@ -309,7 +309,7 @@ Feature: Full UX discount test
       | reduction_percent          |                                        |
       | reduction_amount           | 9.0                                    |
       | reduction_currency         | usd                                    |
-      | taxIncluded                | true                                   |
+      | reduction_tax_included     | true                                   |
       | cheapest_product           | false                                  |
       | productConditionQuantity   | 1                                      |
       | productCondition[products] | product1, product3, product4           |

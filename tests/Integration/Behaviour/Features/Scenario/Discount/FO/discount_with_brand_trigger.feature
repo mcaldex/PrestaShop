@@ -48,7 +48,7 @@ Feature: Add discount with brand trigger on FO
       | active                          | true                     |
       | reduction_amount                | 5.0                      |
       | reduction_currency              | usd                      |
-      | taxIncluded                     | true                     |
+      | reduction_tax_included          | true                     |
       | productConditionQuantity        | 10                       |
       | productCondition[manufacturers] | rocket                   |
     Then discount "discount_with_brand_trigger" should have the following properties:
@@ -59,7 +59,7 @@ Feature: Add discount with brand trigger on FO
       | active                          | true                     |
       | reduction_amount                | 5.0                      |
       | reduction_currency              | usd                      |
-      | taxIncluded                     | true                     |
+      | reduction_tax_included          | true                     |
       | minimum_product_quantity        | 0                        |
       | productConditionQuantity        | 10                       |
       | productCondition[manufacturers] | rocket                   |

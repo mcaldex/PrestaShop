@@ -47,7 +47,7 @@ class DiscountConditionsUpdater
 
     /**
      * @param DiscountId $discountId
-     * @param int|null $minimumProductsQuantity
+     * @param int|null $minimumProductQuantity
      * @param array|null $productConditions
      * @param Money|null $minimumAmount
      * @param bool|null $minimumShippingIncluded
@@ -57,7 +57,7 @@ class DiscountConditionsUpdater
      */
     public function update(
         DiscountId $discountId,
-        ?int $minimumProductsQuantity = null,
+        ?int $minimumProductQuantity = null,
         ?array $productConditions = null,
         ?Money $minimumAmount = null,
         ?bool $minimumShippingIncluded = null,
@@ -68,8 +68,8 @@ class DiscountConditionsUpdater
         // todo: when other conditions are added we check that only one is provided
         $discount = $this->discountRepository->get($discountId);
         $updatableProperties = $this->cleanAllConditions($discount);
-        if (null !== $minimumProductsQuantity) {
-            $updatableProperties = array_merge($updatableProperties, $this->updateMinimalProductQuantity($discount, $minimumProductsQuantity));
+        if (null !== $minimumProductQuantity) {
+            $updatableProperties = array_merge($updatableProperties, $this->updateMinimalProductQuantity($discount, $minimumProductQuantity));
         }
 
         if (null !== $minimumAmount) {
@@ -99,9 +99,9 @@ class DiscountConditionsUpdater
         }
     }
 
-    private function updateMinimalProductQuantity(CartRule $discount, int $minimumProductsQuantity): array
+    private function updateMinimalProductQuantity(CartRule $discount, int $minimumProductQuantity): array
     {
-        $discount->minimum_product_quantity = $minimumProductsQuantity;
+        $discount->minimum_product_quantity = $minimumProductQuantity;
 
         return ['minimum_product_quantity'];
     }

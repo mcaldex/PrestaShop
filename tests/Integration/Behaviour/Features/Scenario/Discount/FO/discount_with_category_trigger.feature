@@ -66,7 +66,7 @@ Feature: Add discount with category trigger on FO
       | active                       | true                        |
       | reduction_amount             | 3.0                         |
       | reduction_currency           | usd                         |
-      | taxIncluded                  | true                        |
+      | reduction_tax_included       | true                        |
       | productConditionQuantity     | 1                           |
       | productCondition[categories] | clothes                     |
     Then discount "discount_with_category_trigger" should have the following properties:
@@ -77,7 +77,7 @@ Feature: Add discount with category trigger on FO
       | active                       | true                        |
       | reduction_amount             | 3.0                         |
       | reduction_currency           | usd                         |
-      | taxIncluded                  | true                        |
+      | reduction_tax_included       | true                        |
       | minimum_product_quantity     | 0                           |
       | productConditionQuantity     | 1                           |
       | productCondition[categories] | clothes                     |
@@ -116,7 +116,7 @@ Feature: Add discount with category trigger on FO
       | active                       | true                          |
       | reduction_amount             | 3.0                           |
       | reduction_currency           | usd                           |
-      | taxIncluded                  | true                          |
+      | reduction_tax_included       | true                          |
       | productConditionQuantity     | 1                             |
       | productCondition[categories] | home                          |
     Then discount "discount_with_category_trigger_2" should have the following properties:
@@ -127,7 +127,7 @@ Feature: Add discount with category trigger on FO
       | active                       | true                          |
       | reduction_amount             | 3.0                           |
       | reduction_currency           | usd                           |
-      | taxIncluded                  | true                          |
+      | reduction_tax_included       | true                          |
       | minimum_product_quantity     | 0                             |
       | productConditionQuantity     | 1                             |
       | productCondition[categories] | home                          |

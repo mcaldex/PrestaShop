@@ -63,7 +63,7 @@ class UpdateDiscountHandler implements UpdateDiscountCommandHandlerInterface
         );
 
         // Only update conditions if at least one is specified
-        if ($command->getMinimumProductsQuantity() !== null
+        if ($command->getMinimumProductQuantity() !== null
             || $command->getProductConditions() !== null
             // If cheapest product was set we must remove the product conditions
             || $command->getCheapestProduct()
@@ -74,7 +74,7 @@ class UpdateDiscountHandler implements UpdateDiscountCommandHandlerInterface
             || $command->getCustomerGroupIds() !== null) {
             $this->discountConditionsUpdater->update(
                 $command->getDiscountId(),
-                $command->getMinimumProductsQuantity(),
+                $command->getMinimumProductQuantity(),
                 $command->getProductConditions(),
                 $command->getMinimumAmount(),
                 $command->getMinimumAmountShippingIncluded(),

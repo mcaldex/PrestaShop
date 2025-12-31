@@ -28,19 +28,19 @@ Feature: Update discount
       | reduction_percent | 10.0                           |
       | cheapest_product  | true                           |
     And discount "updated_product_level_discount" should have the following properties:
-      | name[en-US]        | Promotion                      |
-      | name[fr-FR]        | Promotion_fr                   |
-      | type               | product_level                  |
-      | active             | true                           |
-      | valid_from         | 2019-01-01 11:05:00            |
-      | valid_to           | 2019-12-01 00:00:00            |
-      | code               | updated_product_level_discount |
-      | reduction_percent  | 10.0                           |
-      | reduction_amount   |                                |
+      | name[en-US]            | Promotion                      |
+      | name[fr-FR]            | Promotion_fr                   |
+      | type                   | product_level                  |
+      | active                 | true                           |
+      | valid_from             | 2019-01-01 11:05:00            |
+      | valid_to               | 2019-12-01 00:00:00            |
+      | code                   | updated_product_level_discount |
+      | reduction_percent      | 10.0                           |
+      | reduction_amount       |                                |
       # Default currency is always used by default
-      | reduction_currency | usd                            |
-      | taxIncluded        | false                          |
-      | cheapest_product   | true                           |
+      | reduction_currency     | usd                            |
+      | reduction_tax_included | false                          |
+      | cheapest_product       | true                           |
     # Switch to a product segment target instead, cheapest_product should now be false (partial update)
     Then I update discount "updated_product_level_discount" with the following properties:
       | reduction_percent          | 15.0     |
@@ -85,9 +85,9 @@ Feature: Update discount
       | productCondition[products] | product1 |
     # Now update the percent discount to a fixed amount discount, the product conditions should not be removed
     When I update discount "updated_product_level_discount" with the following properties:
-      | reduction_amount   | 5.0  |
-      | reduction_currency | usd  |
-      | taxIncluded        | true |
+      | reduction_amount       | 5.0  |
+      | reduction_currency     | usd  |
+      | reduction_tax_included | true |
     Then discount "updated_product_level_discount" should have the following properties:
       | name[en-US]                | Promotion                      |
       | name[fr-FR]                | Promotion_fr                   |
@@ -100,7 +100,7 @@ Feature: Update discount
       | reduction_percent          |                                |
       | reduction_amount           | 5.0                            |
       | reduction_currency         | usd                            |
-      | taxIncluded                | true                           |
+      | reduction_tax_included     | true                           |
       # Target is left untouched
       | cheapest_product           | false                          |
       | productConditionQuantity   | 42                             |
@@ -113,25 +113,25 @@ Feature: Update discount
     Then discount "updated_product_level_discount" should have the following properties:
       | reduction_amount         | 5.0  |
       | reduction_currency       | usd  |
-      | taxIncluded              | true |
+      | reduction_tax_included   | true |
       | cheapest_product         | true |
       | productConditionQuantity |      |
       | productCondition         |      |
     # Now update the percent discount to a fixed amount discount
     When I update discount "updated_product_level_discount" with the following properties:
-      | reduction_amount   | 5.0  |
-      | reduction_currency | usd  |
-      | taxIncluded        | true |
+      | reduction_amount       | 5.0  |
+      | reduction_currency     | usd  |
+      | reduction_tax_included | true |
     # Finally check that we can update back to reduction percent
     When I update discount "updated_product_level_discount" with the following properties:
       | reduction_percent | 10.0 |
     Then discount "updated_product_level_discount" should have the following properties:
       # No more reduction percent
-      | reduction_percent  | 10.0  |
+      | reduction_percent      | 10.0  |
       # No reduction amount (Default currency is always used by default)
-      | reduction_amount   |       |
-      | reduction_currency | usd   |
-      | taxIncluded        | false |
+      | reduction_amount       |       |
+      | reduction_currency     | usd   |
+      | reduction_tax_included | false |
 
   Scenario: Check that updating product level to an invalid state is forbidden
     # First create a valid product level discount
@@ -202,7 +202,7 @@ Feature: Update discount
       # No reduction amount (Default currency is always used by default)
       | reduction_amount           |                     |
       | reduction_currency         | usd                 |
-      | taxIncluded                | false               |
+      | reduction_tax_included     | false               |
       | cheapest_product           | false               |
       | productConditionQuantity   | 42                  |
       | productCondition[products] | product1            |
@@ -214,10 +214,10 @@ Feature: Update discount
     Then I should get an error that the discount targets are incompatible
     # Now replace with a a percent AND a fixed amount discount, this is invalid
     When I update discount "valid_product_level" with the following properties:
-      | reduction_percent  | 10.0 |
-      | reduction_amount   | 5.0  |
-      | reduction_currency | usd  |
-      | taxIncluded        | true |
+      | reduction_percent      | 10.0 |
+      | reduction_amount       | 5.0  |
+      | reduction_currency     | usd  |
+      | reduction_tax_included | true |
     Then I should get an error that the discount reductions are incompatible
     And discount "valid_product_level" should have the following properties:
       | name[en-US]                | Promotion           |
@@ -231,7 +231,7 @@ Feature: Update discount
       # No reduction amount (Default currency is always used by default)
       | reduction_amount           |                     |
       | reduction_currency         | usd                 |
-      | taxIncluded                | false               |
+      | reduction_tax_included     | false               |
       | cheapest_product           | false               |
       | productConditionQuantity   | 42                  |
       | productCondition[products] | product1            |

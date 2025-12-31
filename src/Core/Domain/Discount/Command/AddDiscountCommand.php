@@ -61,12 +61,12 @@ class AddDiscountCommand
     private bool $highlightInCart = false;
     private bool $allowPartialUse = true;
     private DiscountType $type;
-    private ?DecimalNumber $percentDiscount = null;
-    private ?Money $amountDiscount = null;
+    private ?DecimalNumber $reductionPercent = null;
+    private ?Money $reductionAmount = null;
     private ?ProductId $giftProductId = null;
     private ?CombinationIdInterface $giftCombinationId = null;
     private bool $cheapestProduct = false;
-    private ?int $minimumProductsQuantity = null;
+    private ?int $minimumProductQuantity = null;
     /**
      * @var ProductRuleGroup[]|null
      */
@@ -277,33 +277,33 @@ class AddDiscountCommand
         return $this;
     }
 
-    public function getPercentDiscount(): ?DecimalNumber
+    public function getReductionPercent(): ?DecimalNumber
     {
-        return $this->percentDiscount;
+        return $this->reductionPercent;
     }
 
-    public function setPercentDiscount(DecimalNumber $percentDiscount): self
+    public function setReductionPercent(DecimalNumber $reductionPercent): self
     {
-        $this->percentDiscount = $percentDiscount;
+        $this->reductionPercent = $reductionPercent;
 
         return $this;
     }
 
-    public function getAmountDiscount(): ?Money
+    public function getReductionAmount(): ?Money
     {
-        return $this->amountDiscount;
+        return $this->reductionAmount;
     }
 
     /**
      * @throws DomainConstraintException
      */
-    public function setAmountDiscount(DecimalNumber $amountDiscount, int $currencyId, bool $taxIncluded): self
+    public function setReductionAmount(DecimalNumber $reductionAmount, int $reductionAmountCurrencyId, bool $reductionAmountTaxIncluded): self
     {
-        if ($amountDiscount->isLowerThanZero()) {
-            throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $amountDiscount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
+        if ($reductionAmount->isLowerThanZero()) {
+            throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $reductionAmount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
         }
 
-        $this->amountDiscount = new Money($amountDiscount, new CurrencyId($currencyId), $taxIncluded);
+        $this->reductionAmount = new Money($reductionAmount, new CurrencyId($reductionAmountCurrencyId), $reductionAmountTaxIncluded);
 
         return $this;
     }
@@ -348,18 +348,18 @@ class AddDiscountCommand
         return $this;
     }
 
-    public function getMinimumProductsQuantity(): ?int
+    public function getMinimumProductQuantity(): ?int
     {
-        return $this->minimumProductsQuantity;
+        return $this->minimumProductQuantity;
     }
 
-    public function setMinimumProductsQuantity(int $minimumProductsQuantity): self
+    public function setMinimumProductQuantity(int $minimumProductQuantity): self
     {
-        if ($minimumProductsQuantity < 0) {
+        if ($minimumProductQuantity < 0) {
             throw new DiscountConstraintException('Minimum products quantity must be greater than 0', DiscountConstraintException::INVALID_MINIMUM_PRODUCT_QUANTITY);
         }
 
-        $this->minimumProductsQuantity = $minimumProductsQuantity;
+        $this->minimumProductQuantity = $minimumProductQuantity;
 
         return $this;
     }

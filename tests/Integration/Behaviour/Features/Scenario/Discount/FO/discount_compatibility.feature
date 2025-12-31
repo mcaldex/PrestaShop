@@ -243,15 +243,15 @@ Feature: Discount compatibility in cart
   Scenario: Apply amount-based discount with compatible percentage discount
     Given I create an empty cart "dummy_cart10" for customer "testCustomer"
     When I create a "cart_level" discount "amount_discount" with following properties:
-      | name[en-US]        | Amount 20 Off       |
-      | active             | true                |
-      | valid_from         | 2025-01-01 00:00:00 |
-      | valid_to           | 2026-12-31 23:59:59 |
-      | code               | AMOUNT20            |
-      | reduction_amount   | 20.0                |
-      | reduction_currency | usd                 |
-      | taxIncluded        | true                |
-      | compatible_types   | cart_level          |
+      | name[en-US]            | Amount 20 Off       |
+      | active                 | true                |
+      | valid_from             | 2025-01-01 00:00:00 |
+      | valid_to               | 2026-12-31 23:59:59 |
+      | code                   | AMOUNT20            |
+      | reduction_amount       | 20.0                |
+      | reduction_currency     | usd                 |
+      | reduction_tax_included | true                |
+      | compatible_types       | cart_level          |
     When I create a "cart_level" discount "percent_discount" with following properties:
       | name[en-US]       | Percent 5% Off      |
       | active            | true                |

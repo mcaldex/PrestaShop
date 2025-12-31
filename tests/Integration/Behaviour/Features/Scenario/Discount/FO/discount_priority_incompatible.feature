@@ -21,16 +21,16 @@ Feature: Discount priority - Incompatible discounts
     And I add 1 product "product1" to the cart "cart1"
         # Priority 5 (lower priority): $15 amount discount
     When I create a "cart_level" discount "incompat_amount_prio5" with following properties:
-      | name[en-US]        | Incompatible Amount Priority 5 |
-      | active             | true                           |
-      | priority           | 5                              |
-      | valid_from         | 2025-01-01 10:00:00            |
-      | valid_to           | 2026-12-31 23:59:59            |
-      | code               | INCOMPAT_AMT5                  |
-      | reduction_amount   | 15.0                           |
-      | reduction_currency | usd                            |
-      | taxIncluded        | true                           |
-      | compatible_types   | product_level                  |
+      | name[en-US]            | Incompatible Amount Priority 5 |
+      | active                 | true                           |
+      | priority               | 5                              |
+      | valid_from             | 2025-01-01 10:00:00            |
+      | valid_to               | 2026-12-31 23:59:59            |
+      | code                   | INCOMPAT_AMT5                  |
+      | reduction_amount       | 15.0                           |
+      | reduction_currency     | usd                            |
+      | reduction_tax_included | true                           |
+      | compatible_types       | product_level                  |
     # Priority 3 (higher priority): 20% percentage discount
     When I create a "cart_level" discount "incompat_percent_prio3" with following properties:
       | name[en-US]       | Incompatible Percent Priority 3 |
@@ -40,7 +40,7 @@ Feature: Discount priority - Incompatible discounts
       | valid_to          | 2026-12-31 23:59:59             |
       | code              | INCOMPAT_PCT3                   |
       | reduction_percent | 20.0                            |
-      | compatible_types   | product_level                  |
+      | compatible_types  | product_level                   |
     When I use a voucher "incompat_amount_prio5" on the cart "cart1"
     And I use a voucher "incompat_percent_prio3" on the cart "cart1"
     # Priority 3 (20%) should win and replace priority 5 ($15)

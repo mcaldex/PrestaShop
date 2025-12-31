@@ -64,7 +64,7 @@ Feature: Add discount with supplier trigger on FO
       | active                      | true                        |
       | reduction_amount            | 3.0                         |
       | reduction_currency          | usd                         |
-      | taxIncluded                 | true                        |
+      | reduction_tax_included      | true                        |
       | productConditionQuantity    | 1                           |
       | productCondition[suppliers] | supplier1                   |
     Then discount "discount_with_supplier_trigger" should have the following properties:
@@ -75,7 +75,7 @@ Feature: Add discount with supplier trigger on FO
       | active                      | true                        |
       | reduction_amount            | 3.0                         |
       | reduction_currency          | usd                         |
-      | taxIncluded                 | true                        |
+      | reduction_tax_included      | true                        |
       | minimum_product_quantity    | 0                           |
       | productConditionQuantity    | 1                           |
       | productCondition[suppliers] | supplier1                   |
