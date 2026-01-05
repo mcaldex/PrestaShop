@@ -45,6 +45,10 @@ use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Command\EditCustomerGroupCo
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\Query\GetCustomerGroupForEditing;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\QueryResult\EditableCustomerGroup;
 use PrestaShop\PrestaShop\Core\Domain\Customer\Group\ValueObject\GroupId;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRule;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroupType;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleType;
 use PrestaShop\PrestaShop\Core\Domain\Module\Command\UploadModuleCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Command\AddProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Product\Command\UpdateProductCommand;
@@ -533,6 +537,33 @@ class CQRSApiSerializerTest extends KernelTestCase
 
     public static function getNormalizationData(): iterable
     {
+        $productRuleGroups = [
+            new ProductRuleGroup(
+                5,
+                [
+                    new ProductRule(
+                        ProductRuleType::PRODUCTS,
+                        [1, 3, 5],
+                    ),
+                ],
+            ),
+        ];
+        yield 'product conditions' => [
+            $productRuleGroups,
+            [
+                [
+                    'quantity' => 5,
+                    'rules' => [
+                        [
+                            'type' => ProductRuleType::PRODUCTS->value,
+                            'itemIds' => [1, 3, 5],
+                        ],
+                    ],
+                    'type' => ProductRuleGroupType::AT_LEAST_ONE_PRODUCT_RULE->value,
+                ],
+            ],
+        ];
+
         $productResource = new Product();
         $productResource->type = ProductType::TYPE_STANDARD;
         $productResource->enabled = true;
@@ -629,15 +660,6 @@ class CQRSApiSerializerTest extends KernelTestCase
                     'fr-FR' => 'http://mylink.fr',
                     'en-US' => 'http://mylink.com',
                 ],
-            ],
-        ];
-
-        $createdApiClient = new CreatedApiClient(42, 'my_secret');
-        yield 'test' => [
-            $createdApiClient,
-            [
-                'apiClientId' => 42,
-                'secret' => 'my_secret',
             ],
         ];
 
