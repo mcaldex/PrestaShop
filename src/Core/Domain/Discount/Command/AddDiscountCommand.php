@@ -55,7 +55,7 @@ class AddDiscountCommand
     private ?DateTimeImmutable $validFrom = null;
     private ?DateTimeImmutable $validTo = null;
     private ?int $totalQuantity = null;
-    private ?int $quantityPerUser = 1;
+    private ?int $quantityPerUser = null;
     private string $description = '';
     private string $code = '';
     private ?CustomerIdInterface $customerId = null;

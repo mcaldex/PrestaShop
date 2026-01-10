@@ -109,7 +109,7 @@ class DiscountFormDataProvider implements FormDataProviderInterface
                     'code' => '',
                 ],
                 'quantity_total' => null,
-                'quantity_per_customer' => 1,
+                'quantity_per_customer' => null,
                 'compatibility' => [],
                 'priority' => 1,
             ],
