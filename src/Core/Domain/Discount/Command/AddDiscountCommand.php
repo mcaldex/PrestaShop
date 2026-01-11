@@ -42,7 +42,6 @@ use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\MinimumAmount;
 use PrestaShop\PrestaShop\Core\Domain\Language\ValueObject\LanguageId;
 use PrestaShop\PrestaShop\Core\Domain\Product\Combination\Exception\CombinationConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationId;
-use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationIdInterface;
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\ValueObject\Money;
@@ -65,7 +64,7 @@ class AddDiscountCommand
     private ?DecimalNumber $reductionPercent = null;
     private ?Money $reductionAmount = null;
     private ?ProductId $giftProductId = null;
-    private ?CombinationIdInterface $giftCombinationId = null;
+    private ?CombinationId $giftCombinationId = null;
     private bool $cheapestProduct = false;
     private ?int $minimumProductQuantity = null;
     /**
@@ -322,7 +321,7 @@ class AddDiscountCommand
         return $this;
     }
 
-    public function getGiftCombinationId(): ?CombinationIdInterface
+    public function getGiftCombinationId(): ?CombinationId
     {
         return $this->giftCombinationId;
     }
