@@ -120,17 +120,12 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 break;
             case DiscountType::CART_LEVEL:
             case DiscountType::ORDER_LEVEL:
-                $this->setDiscountValue($command, $data);
-                break;
             case DiscountType::PRODUCT_LEVEL:
                 $this->setDiscountValue($command, $data);
-                if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
-                    $command->setCheapestProduct(true);
-                }
                 break;
             case DiscountType::FREE_GIFT:
-                $command->setGiftProductId((int) ($data['free_gift'][0]['product_id'] ?? 0));
-                $command->setGiftCombinationId((int) ($data['free_gift'][0]['combination_id'] ?? 0));
+                $command->setGiftProductId(!empty($data['free_gift'][0]['product_id']) ? (int) $data['free_gift'][0]['product_id'] : null);
+                $command->setGiftCombinationId(!empty($data['free_gift'][0]['combination_id']) ? (int) $data['free_gift'][0]['combination_id'] : null);
                 break;
             default:
                 throw new RuntimeException('Unknown discount type ' . $discountType);
@@ -209,17 +204,9 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
 
     private function updateDiscountConditions(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
     {
-        // If no setter is called and the conditions are left left empty, this will result in removing all
-        // the conditions, that's because DiscountConditionsUpdater::update starts by removing/resetting all
-        // the conditions and then apply new ones Since there are no conditions specified it is equivalent to
-        // removing all
-        // It works for now, but it may cause unstability or unexpected behaviour, hence:
-        // todo: we should apply conditions only when we have at least one condition, alternatively we'll need
-        //       a ClearDiscountConditionsCommand to clean everything on purpose
-
         // Products conditions
         if ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::SPECIFIC_PRODUCTS) {
-            $specificProducts = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['specific_products'] ?? [];
+            $specificProducts = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::SPECIFIC_PRODUCTS] ?? [];
             $productRuleGroups = [];
 
             foreach ($specificProducts as $specificProduct) {
@@ -240,13 +227,14 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
             }
 
+            $command->setCheapestProduct(false);
             $command->setProductConditions($productRuleGroups);
         } elseif ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::PRODUCT_SEGMENT) {
-            $manufacturer = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['manufacturer'] ?? [];
-            $category = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['category'] ?? '';
-            $supplier = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['supplier'] ?? [];
-            $attributes = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['attributes']['groups'] ?? [];
-            $features = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['features']['groups'] ?? [];
+            $manufacturer = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['manufacturer'] ?? [];
+            $category = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['category'] ?? '';
+            $supplier = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['supplier'] ?? [];
+            $attributes = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['attributes']['groups'] ?? [];
+            $features = $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['features']['groups'] ?? [];
 
             $productRules = [];
             $productRuleGroups = [];
@@ -279,17 +267,22 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 }
             }
 
-            if (!empty($productRules)) {
-                $command->setProductConditions([
-                    new ProductRuleGroup(
-                        $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['product_segment']['quantity'],
-                        $productRules,
-                        // CRITICAL: this is what makes the whole product rules cumulative and more and more restricting,
-                        // they must all be valid for the global rule group to be valid
-                        ProductRuleGroupType::ALL_PRODUCT_RULES,
-                    ),
-                ]);
-            }
+            $command->setCheapestProduct(false);
+            $command->setProductConditions([
+                new ProductRuleGroup(
+                    $data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS][ProductConditionsType::PRODUCT_SEGMENT]['quantity'],
+                    $productRules,
+                    // CRITICAL: this is what makes the whole product rules cumulative and more and more restricting,
+                    // they must all be valid for the global rule group to be valid
+                    ProductRuleGroupType::ALL_PRODUCT_RULES,
+                ),
+            ]);
+        } elseif ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::CHEAPEST_PRODUCT) {
+            $command->setProductConditions([]);
+            $command->setCheapestProduct(true);
+        } elseif ($data['conditions'][DiscountConditionsType::PRODUCT_CONDITIONS]['children_selector'] === ProductConditionsType::NONE) {
+            $command->setProductConditions([]);
+            $command->setCheapestProduct(false);
         }
 
         // Cart conditions
@@ -302,6 +295,9 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
                 $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['tax_included'],
                 $data['conditions'][DiscountConditionsType::CART_CONDITIONS]['minimum_amount']['shipping_included'],
             );
+        } elseif ($data['conditions'][DiscountConditionsType::CART_CONDITIONS]['children_selector'] === CartConditionsType::NONE) {
+            $command->setMinimumAmount(null);
+            $command->setMinimumProductQuantity(0);
         }
 
         // Delivery conditions
