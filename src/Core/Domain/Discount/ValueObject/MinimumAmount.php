@@ -26,21 +26,23 @@
 
 namespace PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject;
 
-class GiftedProduct
+use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
+use PrestaShop\PrestaShop\Core\Domain\ValueObject\Money;
+
+class MinimumAmount extends Money
 {
     public function __construct(
-        private readonly int $productId,
-        private readonly ?int $combinationId = null,
+        DecimalNumber $amount,
+        CurrencyId $currencyId,
+        bool $taxIncluded,
+        private readonly bool $shippingIncluded,
     ) {
+        parent::__construct($amount, $currencyId, $taxIncluded);
     }
 
-    public function getProductId(): int
+    public function isShippingIncluded(): bool
     {
-        return $this->productId;
-    }
-
-    public function getCombinationId(): ?int
-    {
-        return $this->combinationId;
+        return $this->shippingIncluded;
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "83f5e0a5d4fe3a054b4a6edb4ae97e77",
+    "content-hash": "2080f39fb4da7763aa9612327d4e3a8a",
     "packages": [
         {
             "name": "api-platform/core",
@@ -5208,16 +5208,16 @@
         },
         {
             "name": "prestashop/ps_apiresources",
-            "version": "dev-make-nullable-discount-quantity-and-quantity-per-user",
+            "version": "dev-discount-refacto",
             "source": {
                 "type": "git",
-                "url": "https://github.com/boherm/ps_apiresources.git",
-                "reference": "fa5a345e7df9e97364a61201c7c3da77c56c0b13"
+                "url": "https://github.com/jolelievre/ps_apiresources.git",
+                "reference": "e6f9edfde76d9d042261e930056436d936e60c97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/boherm/ps_apiresources/zipball/fa5a345e7df9e97364a61201c7c3da77c56c0b13",
-                "reference": "fa5a345e7df9e97364a61201c7c3da77c56c0b13",
+                "url": "https://api.github.com/repos/jolelievre/ps_apiresources/zipball/e6f9edfde76d9d042261e930056436d936e60c97",
+                "reference": "e6f9edfde76d9d042261e930056436d936e60c97",
                 "shasum": ""
             },
             "require": {
@@ -5281,9 +5281,9 @@
             "description": "PrestaShop - API Resources",
             "homepage": "https://github.com/PrestaShop/ps_apiresources",
             "support": {
-                "source": "https://github.com/boherm/ps_apiresources/tree/make-nullable-discount-quantity-and-quantity-per-user"
+                "source": "https://github.com/jolelievre/ps_apiresources/tree/discount-refacto"
             },
-            "time": "2025-12-16T14:50:38+00:00"
+            "time": "2026-01-13T17:24:19+00:00"
         },
         {
             "name": "prestashop/ps_banner",

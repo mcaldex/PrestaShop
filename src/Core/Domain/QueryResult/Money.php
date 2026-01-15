@@ -24,24 +24,34 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount;
+namespace PrestaShop\PrestaShop\Core\Domain\QueryResult;
 
-use PrestaShopBundle\Form\Admin\Type\FormattedTextareaType;
+use PrestaShop\Decimal\DecimalNumber;
 
-class DiscountSettings
+/**
+ * This generic query result is used to represent an amount of money for query results.
+ */
+class Money
 {
-    public const MAX_NAME_LENGTH = 255;
-    public const MAX_DESCRIPTION_LENGTH = FormattedTextareaType::LIMIT_MEDIUMTEXT_UTF8_MB4;
-    public const AMOUNT = 'amount';
-    public const PERCENT = 'percentage';
+    public function __construct(
+        private readonly DecimalNumber $amount,
+        private readonly int $currencyId,
+        private readonly bool $taxIncluded
+    ) {
+    }
 
-    // Period filter values
-    public const PERIOD_FILTER_ALL = 'all';
-    public const PERIOD_FILTER_ACTIVE = 'active';
-    public const PERIOD_FILTER_SCHEDULED = 'scheduled';
-    public const PERIOD_FILTER_EXPIRED = 'expired';
+    public function getAmount(): DecimalNumber
+    {
+        return $this->amount;
+    }
 
-    // Special values for CartRule::reduction_product (used for product level discount)
-    public const CHEAPEST_PRODUCT = -1;
-    public const PRODUCT_SEGMENT = -2;
+    public function getCurrencyId(): int
+    {
+        return $this->currencyId;
+    }
+
+    public function isTaxIncluded(): bool
+    {
+        return $this->taxIncluded;
+    }
 }

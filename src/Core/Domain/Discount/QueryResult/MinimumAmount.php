@@ -24,11 +24,24 @@
  * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace PrestaShop\PrestaShop\Core\Domain\Discount\CommandHandler;
+namespace PrestaShop\PrestaShop\Core\Domain\Discount\QueryResult;
 
-use PrestaShop\PrestaShop\Core\Domain\Discount\Command\UpdateDiscountConditionsCommand;
+use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Domain\QueryResult\Money;
 
-interface UpdateDiscountConditionsHandlerInterface
+class MinimumAmount extends Money
 {
-    public function handle(UpdateDiscountConditionsCommand $command): void;
+    public function __construct(
+        DecimalNumber $amount,
+        int $currencyId,
+        bool $taxIncluded,
+        private readonly bool $shippingIncluded
+    ) {
+        parent::__construct($amount, $currencyId, $taxIncluded);
+    }
+
+    public function isShippingIncluded(): bool
+    {
+        return $this->shippingIncluded;
+    }
 }

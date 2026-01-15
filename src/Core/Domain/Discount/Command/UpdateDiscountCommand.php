@@ -28,16 +28,19 @@ namespace PrestaShop\PrestaShop\Core\Domain\Discount\Command;
 
 use DateTimeImmutable;
 use PrestaShop\Decimal\DecimalNumber;
-use PrestaShop\PrestaShop\Core\Domain\Currency\Exception\CurrencyException;
+use PrestaShop\PrestaShop\Core\Domain\Carrier\ValueObject\CarrierId;
+use PrestaShop\PrestaShop\Core\Domain\Country\ValueObject\CountryId;
 use PrestaShop\PrestaShop\Core\Domain\Currency\ValueObject\CurrencyId;
+use PrestaShop\PrestaShop\Core\Domain\Customer\Group\ValueObject\GroupId;
 use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\CustomerId;
+use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\CustomerIdInterface;
+use PrestaShop\PrestaShop\Core\Domain\Customer\ValueObject\NoCustomerId;
 use PrestaShop\PrestaShop\Core\Domain\Discount\Exception\DiscountConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ProductRuleGroup;
 use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\DiscountId;
-use PrestaShop\PrestaShop\Core\Domain\Exception\DomainConstraintException;
+use PrestaShop\PrestaShop\Core\Domain\Discount\ValueObject\MinimumAmount;
 use PrestaShop\PrestaShop\Core\Domain\Product\Combination\Exception\CombinationConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationId;
-use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\CombinationIdInterface;
-use PrestaShop\PrestaShop\Core\Domain\Product\Combination\ValueObject\NoCombinationId;
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\ProductId;
 use PrestaShop\PrestaShop\Core\Domain\ValueObject\Money;
@@ -47,6 +50,7 @@ class UpdateDiscountCommand
 {
     use DirtyTrait;
 
+    private DiscountId $discountId;
     private ?array $localizedNames = null;
     private ?int $priority = null;
     private ?bool $active = null;
@@ -56,19 +60,50 @@ class UpdateDiscountCommand
     private ?int $quantityPerUser = null;
     private ?string $description = null;
     private ?string $code = null;
-    private ?CustomerId $customerId = null;
+    private ?CustomerIdInterface $customerId = null;
     private ?bool $highlightInCart = null;
     private ?bool $allowPartialUse = null;
-    private ?DecimalNumber $percentDiscount = null;
-    private ?Money $amountDiscount = null;
-    private ?ProductId $productId = null;
-    private ?CombinationIdInterface $combinationId = null;
-    private ?int $reductionProduct = null;
-    private DiscountId $discountId;
+    private ?DecimalNumber $reductionPercent = null;
+    private ?Money $reductionAmount = null;
+    private ?ProductId $giftProductId = null;
+    private ?CombinationId $giftCombinationId = null;
+    private ?bool $cheapestProduct = null;
+    private ?ProductId $reductionProductId = null;
+    private ?int $minimumProductQuantity = null;
+    /**
+     * @var ProductRuleGroup[]|null
+     */
+    private ?array $productConditions = null;
+
+    private ?MinimumAmount $minimumAmount = null;
+
+    /**
+     * @var CarrierId[]|null
+     */
+    private ?array $carrierIds = null;
+
+    /**
+     * @var CountryId[]|null
+     */
+    private ?array $countryIds = null;
+
+    /**
+     * @var GroupId[]|null
+     */
+    private ?array $customerGroupIds = null;
+    /**
+     * @var int[]|null
+     */
+    private ?array $compatibleDiscountTypeIds = null;
 
     public function __construct(int $discountId)
     {
         $this->discountId = new DiscountId($discountId);
+    }
+
+    public function getDiscountId(): DiscountId
+    {
+        return $this->discountId;
     }
 
     /**
@@ -169,11 +204,6 @@ class UpdateDiscountCommand
         return $this;
     }
 
-    public function getTotalQuantity(): ?int
-    {
-        return $this->totalQuantity;
-    }
-
     public function isHighlightInCart(): ?bool
     {
         return $this->highlightInCart;
@@ -183,6 +213,11 @@ class UpdateDiscountCommand
     {
         $this->highlightInCart = $highlightInCart;
         $this->markDirty('highlightInCart');
+    }
+
+    public function getTotalQuantity(): ?int
+    {
+        return $this->totalQuantity;
     }
 
     /**
@@ -259,115 +294,288 @@ class UpdateDiscountCommand
         return $this;
     }
 
-    public function getCustomerId(): ?CustomerId
+    public function getCustomerId(): ?CustomerIdInterface
     {
         return $this->customerId;
     }
 
     public function setCustomerId(int $customerId): self
     {
-        $this->customerId = new CustomerId($customerId);
+        $this->customerId = $customerId === NoCustomerId::NO_CUSTOMER_ID_VALUE ? new NoCustomerId() : new CustomerId($customerId);
         $this->markDirty('customerId');
 
         return $this;
     }
 
-    public function getPercentDiscount(): ?DecimalNumber
+    public function getReductionPercent(): ?DecimalNumber
     {
-        return $this->percentDiscount;
+        return $this->reductionPercent;
     }
 
-    public function setPercentDiscount(DecimalNumber $percentDiscount): self
+    public function setReductionPercent(DecimalNumber $reductionPercent): self
     {
-        $this->percentDiscount = $percentDiscount;
-        $this->markDirty('percentDiscount');
+        $this->reductionPercent = $reductionPercent;
+        $this->markDirty('reductionPercent');
 
         return $this;
     }
 
-    public function getAmountDiscount(): ?Money
+    public function getReductionAmount(): ?Money
     {
-        return $this->amountDiscount;
+        return $this->reductionAmount;
     }
 
     /**
-     * @throws DomainConstraintException|DiscountConstraintException
-     * @throws CurrencyException
+     * Note: the parameters names are important here for API serialization.
      */
-    public function setAmountDiscount(DecimalNumber $amountDiscount, int $currencyId, bool $taxIncluded): self
+    public function setReductionAmount(DecimalNumber $amount, int $currencyId, bool $taxIncluded): self
     {
-        if ($amountDiscount->isLowerThanZero()) {
-            throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $amountDiscount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
+        if ($amount->isLowerThanZero()) {
+            throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $amount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
         }
 
-        $this->amountDiscount = new Money($amountDiscount, new CurrencyId($currencyId), $taxIncluded);
-        $this->markDirty('amountDiscount');
+        $this->reductionAmount = new Money($amount, new CurrencyId($currencyId), $taxIncluded);
+        $this->markDirty('reductionAmount');
 
         return $this;
     }
 
-    public function getProductId(): ?ProductId
+    public function getGiftProductId(): ?ProductId
     {
-        return $this->productId;
+        return $this->giftProductId;
     }
 
     /**
      * @throws ProductConstraintException
      */
-    public function setProductId(int $productId): self
+    public function setGiftProductId(?int $giftProductId): self
     {
-        $this->productId = new ProductId($productId);
-        $this->markDirty('productId');
+        $this->giftProductId = null !== $giftProductId ? new ProductId($giftProductId) : null;
+        $this->markDirty('giftProductId');
 
         return $this;
     }
 
-    public function getCombinationId(): ?CombinationIdInterface
+    public function getGiftCombinationId(): ?CombinationId
     {
-        return $this->combinationId;
+        return $this->giftCombinationId;
     }
 
     /**
      * @throws CombinationConstraintException
      */
-    public function setCombinationId(int $combinationId): self
+    public function setGiftCombinationId(?int $giftCombinationId): self
     {
-        if (NoCombinationId::NO_COMBINATION_ID === $combinationId) {
-            $this->combinationId = new NoCombinationId();
-        } else {
-            $this->combinationId = new CombinationId($combinationId);
-        }
-        $this->markDirty('combinationId');
+        $this->giftCombinationId = null !== $giftCombinationId ? new CombinationId($giftCombinationId) : null;
+        $this->markDirty('giftCombinationId');
 
         return $this;
     }
 
-    public function getReductionProduct(): ?int
+    public function getCheapestProduct(): ?bool
     {
-        return $this->reductionProduct;
+        return $this->cheapestProduct;
+    }
+
+    public function setCheapestProduct(bool $cheapestProduct): self
+    {
+        $this->cheapestProduct = $cheapestProduct;
+        $this->markDirty('cheapestProduct');
+
+        return $this;
+    }
+
+    public function getReductionProductId(): ?ProductId
+    {
+        return $this->reductionProductId;
     }
 
     /**
-     * @param int $reductionProduct
-     *
-     * @return $this
-     *
-     * This can have several values
-     *  0 => The discount is not a Product discount
-     * -1 => The discounted product is the cheapest of the cart
-     * -2 => The discount is applied on a selection of product // this case is not yet handled.
-     * >0 => The productId of the discounted product
+     * @throws ProductConstraintException
      */
-    public function setReductionProduct(int $reductionProduct): self
+    public function setReductionProductId(?int $reductionProductId): self
     {
-        $this->reductionProduct = $reductionProduct;
-        $this->markDirty('reductionProduct');
+        $this->reductionProductId = null !== $reductionProductId ? new ProductId($reductionProductId) : null;
+        $this->markDirty('reductionProductId');
 
         return $this;
     }
 
-    public function getDiscountId(): DiscountId
+    public function getMinimumProductQuantity(): ?int
     {
-        return $this->discountId;
+        return $this->minimumProductQuantity;
+    }
+
+    public function setMinimumProductQuantity(int $minimumProductQuantity): self
+    {
+        if ($minimumProductQuantity < 0) {
+            throw new DiscountConstraintException('Minimum products quantity must be greater than 0', DiscountConstraintException::INVALID_MINIMUM_PRODUCT_QUANTITY);
+        }
+        $this->minimumProductQuantity = $minimumProductQuantity;
+        $this->markDirty('minimumProductQuantity');
+
+        return $this;
+    }
+
+    public function getMinimumAmount(): ?MinimumAmount
+    {
+        return $this->minimumAmount;
+    }
+
+    /**
+     * Note: the parameters names are important here for API serialization.
+     * To unset the minimum amount set the first parameter to null (the other parameters can remain empty)
+     */
+    public function setMinimumAmount(?DecimalNumber $amount, int $currencyId = 0, bool $taxIncluded = true, bool $shippingIncluded = true): self
+    {
+        if (null === $amount) {
+            $this->minimumAmount = null;
+        } else {
+            if ($amount->isLowerThanZero()) {
+                throw new DiscountConstraintException(sprintf('Money amount cannot be lower than zero, %s given', $amount), DiscountConstraintException::INVALID_DISCOUNT_VALUE_CANNOT_BE_NEGATIVE);
+            }
+
+            $this->minimumAmount = new MinimumAmount($amount, new CurrencyId($currencyId), $taxIncluded, $shippingIncluded);
+        }
+        $this->markDirty('minimumAmount');
+
+        return $this;
+    }
+
+    /**
+     * @return ProductRuleGroup[]|null
+     */
+    public function getProductConditions(): ?array
+    {
+        return $this->productConditions;
+    }
+
+    /**
+     * @param ProductRuleGroup[]|array<int, array{quantity: int, rules: array<int, array{type: string, itemIds: int[]}>, type: string}> $productConditions
+     *
+     * @return self
+     *
+     * @throws DiscountConstraintException
+     */
+    public function setProductConditions(array $productConditions): self
+    {
+        $validProductConditions = [];
+        foreach ($productConditions as $productCondition) {
+            if (is_array($productCondition)) {
+                $productCondition = ProductRuleGroup::fromArray($productCondition);
+            }
+
+            if (!$productCondition instanceof ProductRuleGroup) {
+                throw new DiscountConstraintException(sprintf('Product conditions must be an array of %s', ProductRuleGroup::class), DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+            }
+            if ($productCondition->getQuantity() <= 0) {
+                throw new DiscountConstraintException('Product conditions quantity must be strictly positive', DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+            }
+            if (empty($productCondition->getRules())) {
+                throw new DiscountConstraintException('Product conditions rules cannot be empty', DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+            }
+
+            foreach ($productCondition->getRules() as $rule) {
+                if (empty($rule->getItemIds())) {
+                    throw new DiscountConstraintException('Product conditions rule items cannot be empty', DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                }
+
+                foreach ($rule->getItemIds() as $itemId) {
+                    if (!is_int($itemId)) {
+                        throw new DiscountConstraintException('Product conditions rule item ID must be an integer', DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                    }
+                    if ((int) $itemId <= 0) {
+                        throw new DiscountConstraintException('Product conditions rule item ID must be strictly positive', DiscountConstraintException::INVALID_PRODUCTS_CONDITIONS);
+                    }
+                }
+            }
+            $validProductConditions[] = $productCondition;
+        }
+        $this->productConditions = $validProductConditions;
+        $this->markDirty('productConditions');
+
+        return $this;
+    }
+
+    /**
+     * @return CarrierId[]|null
+     */
+    public function getCarrierIds(): ?array
+    {
+        return $this->carrierIds;
+    }
+
+    /**
+     * @param int[]|null $carrierIds
+     *
+     * @return $this
+     */
+    public function setCarrierIds(?array $carrierIds): self
+    {
+        $this->carrierIds = $carrierIds !== null ? array_map(fn (int $carrierId) => new CarrierId($carrierId), $carrierIds) : null;
+        $this->markDirty('carrierIds');
+
+        return $this;
+    }
+
+    public function getCountryIds(): ?array
+    {
+        return $this->countryIds;
+    }
+
+    public function setCountryIds(?array $countryIds): self
+    {
+        $this->countryIds = $countryIds !== null ? array_map(fn (int $countryId) => new CountryId($countryId), $countryIds) : null;
+        $this->markDirty('countryIds');
+
+        return $this;
+    }
+
+    /**
+     * @return GroupId[]|null
+     */
+    public function getCustomerGroupIds(): ?array
+    {
+        return $this->customerGroupIds;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCustomerGroupIds(?array $customerGroupIds): self
+    {
+        $this->customerGroupIds = $customerGroupIds !== null ? array_map(fn (int $groupId) => new GroupId($groupId), $customerGroupIds) : null;
+        $this->markDirty('customerGroupIds');
+
+        return $this;
+    }
+
+    /**
+     * @return int[]|null
+     */
+    public function getCompatibleDiscountTypeIds(): ?array
+    {
+        return $this->compatibleDiscountTypeIds;
+    }
+
+    /**
+     * @param int[]|null $compatibleDiscountTypeIds
+     */
+    public function setCompatibleDiscountTypeIds(?array $compatibleDiscountTypeIds): self
+    {
+        foreach ($compatibleDiscountTypeIds as $compatibleDiscountTypeId) {
+            if (!is_int($compatibleDiscountTypeId) || $compatibleDiscountTypeId <= 0) {
+                throw new DiscountConstraintException('Compatible discount type ID must be positive integer', DiscountConstraintException::INVALID_COMPATIBLE_TYPE_IDS);
+            }
+        }
+        $uniqueValues = array_unique($compatibleDiscountTypeIds);
+        if ($uniqueValues !== $compatibleDiscountTypeIds) {
+            throw new DiscountConstraintException('Provided compatible discount type ID must be unique', DiscountConstraintException::INVALID_COMPATIBLE_TYPE_IDS);
+        }
+
+        $this->compatibleDiscountTypeIds = $compatibleDiscountTypeIds;
+        $this->markDirty('compatibleDiscountTypeIds');
+
+        return $this;
     }
 }
