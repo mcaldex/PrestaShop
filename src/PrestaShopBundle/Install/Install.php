@@ -68,6 +68,7 @@ use PrestaShopBundle\Cache\LocalizationWarmer;
 use PrestaShopException;
 use PrestashopInstallerException;
 use PrestaShopLoggerInterface;
+use Psr\Log\LogLevel;
 use PSRLoggerAdapter;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -1181,11 +1182,13 @@ class Install extends AbstractInstall
         $themeName = $themeName ?: _THEME_NAME_;
         $this->getLogger()->logInfo('Installing theme ' . $themeName);
 
+        $logger = new PSRLoggerAdapter($this->getLogger());
+        $logger->startSavingMessages();
         $builder = new ThemeManagerBuilder(
             Context::getContext(),
             Db::getInstance(),
             null,
-            new PSRLoggerAdapter($this->getLogger())
+            $logger,
         );
 
         $theme_manager = $builder->build();
@@ -1195,6 +1198,12 @@ class Install extends AbstractInstall
             $this->setError($theme_manager->getErrors($themeName));
 
             return false;
+        }
+
+        $warnings = $logger->getSavedMessages(LogLevel::WARNING);
+        $logger->stopSavingMessages();
+        if (!empty($warnings)) {
+            $this->setWarning($warnings);
         }
 
         /*
