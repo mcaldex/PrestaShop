@@ -85,7 +85,6 @@ use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductOutOfStockExcepti
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductSearchEmptyPhraseException;
 use PrestaShop\PrestaShop\Core\Domain\Product\Query\SearchProducts;
 use PrestaShop\PrestaShop\Core\Domain\Product\QueryResult\FoundProduct;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\DeleteShipmentProductFromOrder;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\EditShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\MergeProductsToShipment;
 use PrestaShop\PrestaShop\Core\Domain\Shipment\Command\SplitShipment;
@@ -877,21 +876,10 @@ class OrderController extends PrestaShopAdminController
      */
     private function checkFormValidity(array $products): bool
     {
-        $hasAtLeastOneSelected = false;
+        $allSelected = array_reduce($products, fn ($carry, $product) => $carry && ($product['selected'] ?? false), true);
+        $allQuantitiesMatch = array_reduce($products, fn ($carry, $product) => $carry && (($product['selected_quantity'] ?? 0) === $product['quantity']), true);
 
-        foreach ($products as $product) {
-            if (!empty($product['selected'])) {
-                $hasAtLeastOneSelected = true;
-
-                $selectedQuantity = $product['selected_quantity'] ?? 0;
-
-                if ($selectedQuantity > $product['quantity']) {
-                    return false;
-                }
-            }
-        }
-
-        return $hasAtLeastOneSelected;
+        return !($allSelected && $allQuantitiesMatch);
     }
 
     private function isShipmentShipped(int $orderId, int $shipmentId): bool
@@ -1822,10 +1810,6 @@ class OrderController extends PrestaShopAdminController
         try {
             $this->dispatchCommand(
                 new DeleteProductFromOrderCommand($orderId, $orderDetailId)
-            );
-
-            $this->dispatchCommand(
-                new DeleteShipmentProductFromOrder($orderId, $orderDetailId)
             );
 
             return $this->json(null, Response::HTTP_NO_CONTENT);
