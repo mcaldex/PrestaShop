@@ -129,6 +129,10 @@ class ModulesDoctrineCompilerPass implements CompilerPassInterface
                     continue;
                 }
 
+                // We strip the last part of the namespace to get the namespace matching with the entity folder
+                // This is required in case you have sub-folders like src/Entity/Category/Category.php
+                // The first matching PHP file would be in a sub namespace and be returned, thus the Entity
+                // namespace would not be parsed completely
                 if (($pos = strpos($namespace, '\\Entity')) !== false) {
                     return substr($namespace, 0, $pos + strlen('\\Entity'));
                 }
