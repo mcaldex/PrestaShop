@@ -46,7 +46,7 @@ export default class OrderProductAutocomplete {
 
   dropdownMenu: JQuery;
 
-  selectShipment: JQuery;
+  selectShipment: HTMLSelectElement;
 
   searchTimeoutId: undefined | number | ReturnType<typeof setTimeout>;
 
@@ -58,7 +58,7 @@ export default class OrderProductAutocomplete {
     this.input = input;
     this.results = [];
     this.searchTimeoutId = undefined;
-    this.selectShipment = $(OrderViewPageMap.selectAddShipment);
+    this.selectShipment = document.querySelector(OrderViewPageMap.selectAddShipment) as HTMLSelectElement;
     this.dropdownMenu = $(OrderViewPageMap.productSearchInputAutocompleteMenu);
     /**
      * Permit to link to each value of dropdown a callback after item is clicked
@@ -154,7 +154,7 @@ export default class OrderProductAutocomplete {
       throw new Error('Missing orderId or productId, cant fetch shipment for product');
     }
 
-    this.selectShipment.prop('disabled', true);
+    this.selectShipment.disabled = true;
 
     fetch(this.router.generate('admin_orders_get_shipments_for_product', {orderId, productId}), {
       method: 'POST',
@@ -169,21 +169,21 @@ export default class OrderProductAutocomplete {
         return response.json();
       })
       .then((data) => {
-        this.selectShipment.empty();
+        this.selectShipment.innerHTML = '';
 
         data.shipments.forEach(
-          ({id, name}: { id: number; name: string }) => {
+          ({id, name}: { id: string; name: string }) => {
             this.selectShipment.append(
-              $('<option></option>').val(id).text(name),
+              new Option(name, id)
             );
           },
         );
 
-        this.selectShipment.prop('disabled', false);
+        this.selectShipment.disabled = false;
       })
       .catch((error) => {
         console.error('An error occured while fetching shipments ', error);
-        this.selectShipment.prop('disabled', true);
+        this.selectShipment.disabled = true;
       });
   }
 }
