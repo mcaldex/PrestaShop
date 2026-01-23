@@ -2945,14 +2945,13 @@ abstract class ModuleCore implements ModuleInterface
      */
     public function uninstallOverrides()
     {
-        if (!is_dir($this->getLocalPath() . 'override')) {
-            return true;
-        }
-
         $result = true;
-        foreach (Tools::scandir($this->getLocalPath() . 'override', 'php', '', true) as $file) {
-            $class = basename($file, '.php');
-            if (PrestashopAutoload::getInstance()->getClassPath($class . 'Core') || Module::getModuleIdByName($class)) {
+        $override_dir = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'override';
+
+        foreach (Tools::scandir($override_dir, 'php', '', true) as $file) {
+            $path_override = $override_dir . DIRECTORY_SEPARATOR . $file;
+            if (preg_match('/module: ' . preg_quote($this->name, '/') . '/ism', file_get_contents($path_override))) {
+                $class = basename($file, '.php');
                 $result &= $this->removeOverride($class);
             }
         }
@@ -3243,21 +3242,6 @@ abstract class ModuleCore implements ModuleInterface
                 )
             );
             $override_class = new ReflectionClass($classname . 'OverrideOriginal_remove' . $uniq);
-
-            $module_file = file($this->getLocalPath() . 'override/' . $path);
-            eval(
-                preg_replace(
-                    [
-                        '#^\s*<\?(?:php)?#',
-                        '#class\s+' . $classname . '(\s+extends\s+([a-z0-9_]+)(\s+implements\s+([a-z0-9_]+))?)?#i',
-                    ],
-                    [
-                        ' ',
-                        'class ' . $classname . 'Override_remove' . $uniq . ' extends \stdClass',
-                    ],
-                    implode('', $module_file)
-                )
-            );
 
             // Remove methods from override file
             foreach ($override_class->getMethods() as $method) {
