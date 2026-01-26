@@ -40,7 +40,7 @@ use PrestaShopException;
 class OrderDetailRepository extends AbstractObjectModelRepository
 {
     public function __construct(
-        private readonly ?Connection $connection,
+        private readonly ?Connection $connection = null,
         private ?string $dbPrefix = null
     ) {
     }
