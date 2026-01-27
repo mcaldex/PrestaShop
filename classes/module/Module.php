@@ -2950,7 +2950,8 @@ abstract class ModuleCore implements ModuleInterface
 
         foreach (Tools::scandir($override_dir, 'php', '', true) as $file) {
             $path_override = $override_dir . DIRECTORY_SEPARATOR . $file;
-            if (preg_match('/module: ' . preg_quote($this->name, '/') . '/ism', file_get_contents($path_override))) {
+            $content = file_get_contents($path_override);
+            if (!empty($content) && preg_match('/module: ' . preg_quote($this->name, '/') . '/ism', $content)) {
                 $class = basename($file, '.php');
                 $result &= $this->removeOverride($class);
             }
