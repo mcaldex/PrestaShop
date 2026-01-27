@@ -2928,14 +2928,14 @@ abstract class ModuleCore implements ModuleInterface
      */
     public function uninstallOverrides()
     {
-        if (!is_dir($this->getLocalPath() . 'override')) {
-            return true;
-        }
-
         $result = true;
-        foreach (Tools::scandir($this->getLocalPath() . 'override', 'php', '', true) as $file) {
-            $class = basename($file, '.php');
-            if (PrestashopAutoload::getInstance()->getClassPath($class . 'Core') || Module::getModuleIdByName($class)) {
+        $override_dir = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'override';
+
+        foreach (Tools::scandir($override_dir, 'php', '', true) as $file) {
+            $path_override = $override_dir . DIRECTORY_SEPARATOR . $file;
+            $content = file_get_contents($path_override);
+            if (!empty($content) && preg_match('/module: ' . preg_quote($this->name, '/') . '/ism', $content)) {
+                $class = basename($file, '.php');
                 $result &= $this->removeOverride($class);
             }
         }
@@ -3055,7 +3055,7 @@ abstract class ModuleCore implements ModuleInterface
                     throw new Exception(Context::getContext()->getTranslator()->trans('The constant %1$s in the class %2$s is already defined.', [$constant, $classname], 'Admin.Modules.Notification'));
                 }
 
-                $module_file = preg_replace('/(const\s)\s*(\b' . $constant . '\b)/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1$2", $module_file);
+                $module_file = preg_replace('/((?:public|private|protected)\s)?\s*(const\s)\s*(\w+\s)?\s*(\b' . $constant . '\b)/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1$2$3$4", $module_file);
                 if ($module_file === null) {
                     throw new Exception(Context::getContext()->getTranslator()->trans('Failed to override constant %1$s in class %2$s.', [$constant, $classname], 'Admin.Modules.Notification'));
                 }
@@ -3119,7 +3119,7 @@ abstract class ModuleCore implements ModuleInterface
 
                 // Same loop for constants
                 foreach ($module_class->getConstants() as $constant => $value) {
-                    $module_file = preg_replace('/(const\s)\s*(\b' . $constant . '\b)/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1$2", $module_file);
+                    $module_file = preg_replace('/((?:public|private|protected)\s)?\s*(const\s)\s*(\w+\s)?\s*(\b' . $constant . '\b)/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1$2$3$4", $module_file);
                     if ($module_file === null) {
                         throw new Exception(Context::getContext()->getTranslator()->trans('Failed to override constant %1$s in class %2$s.', [$constant, $classname], 'Admin.Modules.Notification'));
                     }
@@ -3227,55 +3227,19 @@ abstract class ModuleCore implements ModuleInterface
             );
             $override_class = new ReflectionClass($classname . 'OverrideOriginal_remove' . $uniq);
 
-            $module_file = file($this->getLocalPath() . 'override/' . $path);
-            eval(
-                preg_replace(
-                    [
-                        '#^\s*<\?(?:php)?#',
-                        '#class\s+' . $classname . '(\s+extends\s+([a-z0-9_]+)(\s+implements\s+([a-z0-9_]+))?)?#i',
-                    ],
-                    [
-                        ' ',
-                        'class ' . $classname . 'Override_remove' . $uniq . ' extends \stdClass',
-                    ],
-                    implode('', $module_file)
-                )
-            );
-            $module_class = new ReflectionClass($classname . 'Override_remove' . $uniq);
-
             // Remove methods from override file
-            foreach ($module_class->getMethods() as $method) {
-                if (!$override_class->hasMethod($method->getName())) {
-                    continue;
-                }
-
-                $method = $override_class->getMethod($method->getName());
+            foreach ($override_class->getMethods() as $method) {
                 $length = $method->getEndLine() - $method->getStartLine() + 1;
-
-                $module_method = $module_class->getMethod($method->getName());
-
-                $override_file_orig = $override_file;
-
-                $orig_content = preg_replace('/\s/', '', implode('', array_splice($override_file, $method->getStartLine() - 1, $length, array_pad([], $length, '#--remove--#'))));
-                $module_content = preg_replace('/\s/', '', implode('', array_splice($module_file, $module_method->getStartLine() - 1, $length, array_pad([], $length, '#--remove--#'))));
-
-                $replace = true;
                 if (preg_match('/\* module: (' . $this->name . ')/ism', $override_file[$method->getStartLine() - 5])) {
                     $override_file[$method->getStartLine() - 6] = $override_file[$method->getStartLine() - 5] = $override_file[$method->getStartLine() - 4] = $override_file[$method->getStartLine() - 3] = $override_file[$method->getStartLine() - 2] = '#--remove--#';
-                    $replace = false;
-                }
-
-                if (md5($module_content) != md5($orig_content) && $replace) {
-                    $override_file = $override_file_orig;
+                    for ($i = 0; $i < $length; ++$i) {
+                        $override_file[$method->getStartLine() - 1 + $i] = '#--remove--#';
+                    }
                 }
             }
 
             // Remove properties from override file
-            foreach ($module_class->getProperties() as $property) {
-                if (!$override_class->hasProperty($property->getName())) {
-                    continue;
-                }
-
+            foreach ($override_class->getProperties() as $property) {
                 // Replace the declaration line by #--remove--#
                 foreach ($override_file as $line_number => &$line_content) {
                     if (preg_match('/(public|private|protected)\s+(static\s+)?\s*(\w+\s+)?(\$)?' . $property->getName() . '/i', $line_content)) {
@@ -3290,14 +3254,10 @@ abstract class ModuleCore implements ModuleInterface
             }
 
             // Remove properties from override file
-            foreach ($module_class->getConstants() as $constant => $value) {
-                if (!$override_class->hasConstant($constant)) {
-                    continue;
-                }
-
+            foreach ($override_class->getConstants() as $constant => $value) {
                 // Replace the declaration line by #--remove--#
                 foreach ($override_file as $line_number => &$line_content) {
-                    if (preg_match('/(const)\s+(static\s+)?(\$)?' . $constant . '/i', $line_content)) {
+                    if (preg_match('/((?:public|private|protected)\s)?\s*(const)\s+(static\s+)?(\w+\s)?\s*(\$)?' . $constant . '/i', $line_content)) {
                         if (preg_match('/\* module: (' . $this->name . ')/ism', $override_file[$line_number - 4])) {
                             $override_file[$line_number - 5] = $override_file[$line_number - 4] = $override_file[$line_number - 3] = $override_file[$line_number - 2] = $override_file[$line_number - 1] = '#--remove--#';
                         }
