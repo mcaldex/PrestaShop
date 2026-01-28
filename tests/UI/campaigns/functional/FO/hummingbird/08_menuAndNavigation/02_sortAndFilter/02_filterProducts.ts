@@ -39,7 +39,6 @@ describe('FO - Menu and Navigation - Sort and filter : Filter products', async (
   // Pre-condition : Install Hummingbird
   enableHummingbird(`${baseContext}_preTest`);
 
-  // before and after functions
   before(async function () {
     browserContext = await utilsPlaywright.createBrowserContext(this.browser);
     page = await utilsPlaywright.newTab(browserContext);
