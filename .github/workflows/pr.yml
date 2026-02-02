@@ -29,68 +29,7 @@ jobs:
         uses: Morishiri/block-merge-commits-action@v1.0.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
   convention-check:
     name: Validate PR Metadata
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check PR Metadata
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            const title = pr.title;
-            const body = pr.body || "";
-            const author = pr.user.login;
-            const milestone = pr.milestone ? pr.milestone.title : "";
-
-            const ACCEPTED_CATEGORIES = ['FO', 'CO', 'BO', 'WS', 'IN', 'TE', 'LO', 'ME', 'PM'];
-            const ACCEPTED_TYPES = ['bug fix', 'improvement', 'refacto', 'new feature'];
-            const BUMP_PR_AUTHOR = ['dependabot[bot]', 'github-actions[bot]', '@github-actions[bot]'];
-            const BUMP_PR_TITLE_PREFIX = 'Bump';
-
-            function isBumpPullRequest(title, author) {
-              return title.startsWith(BUMP_PR_TITLE_PREFIX) && BUMP_PR_AUTHOR.includes(author);
-            }
-
-            if (isBumpPullRequest(title, author)) {
-              console.log("Bump PR detected. Skipping manual metadata validation.");
-              return;
-            }
-
-            const errors = [];
-
-            // Helper to build pattern
-            function buildPattern(propertyName, captureGroup) {
-              return new RegExp('^(?:\\s*\\|?\\s*)' + propertyName + '\\??\\s*\\|\\s*(' + captureGroup + ')(?:\\s*\\|?\\s*)$', 'im');
-            }
-
-            // Extract Category
-            const categoryMatch = body.match(buildPattern('Category', '[a-z]{2}'));
-            const category = categoryMatch ? categoryMatch[1].trim().toUpperCase() : "";
-            if (!ACCEPTED_CATEGORIES.includes(category)) {
-              errors.push(`Invalid category: "${category}". Expected one of: ${ACCEPTED_CATEGORIES.join(', ')}`);
-            }
-
-            // Extract Type
-            const typeMatch = body.match(buildPattern('Type', '[a-zA-Z\\s]+'));
-            const type = typeMatch ? typeMatch[1].trim().toLowerCase() : "";
-            if (!ACCEPTED_TYPES.includes(type)) {
-              errors.push(`Invalid type: "${type}". Expected one of: ${ACCEPTED_TYPES.join(', ')}`);
-            }
-
-            // Validate Title
-            if (!/^[A-Z]/.test(title)) {
-              errors.push('Pull Request title does not start with an uppercase letter');
-            }
-
-            // Validate Milestone
-            if (!milestone) {
-              errors.push('No milestone defined');
-            }
-
-            if (errors.length > 0) {
-              core.setFailed("PR validation failed:\n- " + errors.join('\n- '));
-            } else {
-              console.log("PR validation successful!");
-            }
+    # On appelle le workflow centralisé via son chemin complet
+    uses: PrestaShop/.github/.github/workflows/validate-pr-metadata.yml@master
