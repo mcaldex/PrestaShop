@@ -31,7 +31,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * BusinessEntityIdentifier.
  *
- * @ORM\Table(name="PREFIX_business_entity_identifier", indexes={
+ * @ORM\Table(indexes={
  *
  *     @ORM\Index(name="business_entity_identifier_id_business_entity_idx", columns={"id_business_entity"}),
  *     @ORM\Index(name="business_entity_identifier_id_business_identifier_idx", columns={"id_business_identifier"}),
@@ -48,7 +48,7 @@ class BusinessEntityIdentifier
     /**
      * @ORM\Id
      *
-     * @ORM\Column(name="id_domain", type="integer", options={"unsigned"=true})
+     * @ORM\Column(name="id_identifier", type="integer", options={"unsigned"=true})
      *
      * @ORM\GeneratedValue(strategy="AUTO")
      */

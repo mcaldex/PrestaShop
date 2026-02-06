@@ -33,10 +33,9 @@ use PrestaShopBundle\Entity\Enum\AddressTypeEnum;
 /**
  * BusinessEntityAddress.
  *
- * @ORM\Table(name="PREFIX_business_entity_address", indexes={
- *
- *     @ORM\Index(name="business_entity_address_address_idx", columns={"id_address"})
- * })
+ * @ORM\Table(
+ *     indexes={@ORM\Index(name="business_entity_address_address_idx", columns={"id_address"})}
+ * )
  *
  * @ORM\Entity()
  */

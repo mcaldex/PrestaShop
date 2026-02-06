@@ -33,7 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * BusinessIdentifier.
  *
- * @ORM\Table(name="PREFIX_business_identifier")
+ * @ORM\Table()
  *
  * @ORM\Entity()
  */

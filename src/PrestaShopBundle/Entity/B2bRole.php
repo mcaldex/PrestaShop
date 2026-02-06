@@ -33,10 +33,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * B2bRole.
  *
- * @ORM\Table(name="PREFIX_b2b_role", indexes={
- *
- *     @ORM\Index(name="uniq_b2b_role", columns={"role"})
- * })
+ * @ORM\Table(
+ *     indexes={@ORM\Index(name="uniq_b2b_role", columns={"role"})}
+ * )
  *
  * @ORM\Entity()
  */
@@ -49,7 +48,7 @@ class B2bRole
      *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private int $idRole;
+    private int $id;
 
     /**
      * @ORM\Column(name="role", type="string", length=64)

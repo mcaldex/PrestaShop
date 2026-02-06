@@ -31,11 +31,13 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * B2bRoleAuthorizationRole.
  *
- * @ORM\Table(name="PREFIX_b2b_role_authorization_role", indexes={
+ * @ORM\Table(
+ *     indexes={
  *
- *     @ORM\Index(name="b2b_role_authorization_role_role_idx", columns={"id_role"}),
- *     @ORM\Index(name="b2b_role_authorization_role_auth_role_idx", columns={"id_authorization_role"})
- * })
+ *         @ORM\Index(name="b2b_role_authorization_role_role_idx", columns={"id_role"}),
+ *         @ORM\Index(name="b2b_role_authorization_role_auth_role_idx", columns={"id_authorization_role"})
+ *     }
+ *  )
  *
  * @ORM\Entity()
  */
@@ -53,7 +55,7 @@ class B2bRoleAuthorizationRole
     /**
      * @ORM\Id
      *
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\AuthorizationRole") // Si tu as une entité AuthorizationRole, sinon à remplacer
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\Employee\AuthorizationRole")
      *
      * @ORM\JoinColumn(name="id_authorization_role", referencedColumnName="id_authorization_role", nullable=false)
      */

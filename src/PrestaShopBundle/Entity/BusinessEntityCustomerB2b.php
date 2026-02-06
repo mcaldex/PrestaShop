@@ -32,14 +32,18 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * BusinessEntityCustomerB2b.
  *
- * @ORM\Table(name="PREFIX_business_entity_customer_b2b", indexes={
+ * @ORM\Table(
+ *     indexes={
  *
- *     @ORM\Index(name="business_entity_customer_b2b_be_idx", columns={"id_business_entity"}),
- *     @ORM\Index(name="business_entity_customer_b2b_customer_idx", columns={"id_customer_b2b"}),
- *     @ORM\Index(name="business_entity_customer_b2b_role_idx", columns={"id_role_b2b"}),
+ *         @ORM\Index(name="business_entity_customer_b2b_be_idx", columns={"id_business_entity"}),
+ *         @ORM\Index(name="business_entity_customer_b2b_customer_idx", columns={"id_customer_b2b"}),
+ *         @ORM\Index(name="business_entity_customer_b2b_role_idx", columns={"id_role_b2b"}),
  *
  *     @ORM\UniqueConstraint(name="uniq_be_customer", columns={"id_business_entity", "id_customer_b2b"})
- * })
+ *     }
+ *  )
+ *
+ * @ORM\HasLifecycleCallbacks
  *
  * @ORM\Entity()
  */
@@ -148,5 +152,18 @@ class BusinessEntityCustomerB2b
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     *
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->updatedAt = new DateTime();
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new DateTime();
+        }
     }
 }

@@ -35,11 +35,15 @@ use PrestaShopBundle\Entity\Enum\BusinessEntityStatus;
 /**
  * BusinessEntity.
  *
- * @ORM\Table(name="PREFIX_business_entity", indexes={
+ * @ORM\Table(
+ *     indexes={
  *
- *     @ORM\Index(name="business_entity_enterprise_id_idx", columns={"enterprise_id"}),
- *     @ORM\Index(name="business_entity_external_ref_idx", columns={"external_ref"})
- * })
+ *         @ORM\Index(name="business_entity_enterprise_id_idx", columns={"enterprise_id"}),
+ *         @ORM\Index(name="business_entity_external_ref_idx", columns={"external_ref"})
+ *     }
+ *  )
+ *
+ * @ORM\HasLifecycleCallbacks
  *
  * @ORM\Entity()
  */
@@ -293,5 +297,18 @@ class BusinessEntity
         $this->businessEntityCustomerB2bs->removeElement($businessEntityCustomerB2b);
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     *
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->updatedAt = new DateTime();
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new DateTime();
+        }
     }
 }
