@@ -45,7 +45,7 @@ import {
 
 import {expect} from 'chai';
 
-const baseContext: string = 'functional_FO_hummingbird_checkout_orderConfirmation_multicarrier';
+const baseContext: string = 'functional_FO_hummingbird_orderConfirmation_multicarrier';
 
 /*
 Pre-condition:

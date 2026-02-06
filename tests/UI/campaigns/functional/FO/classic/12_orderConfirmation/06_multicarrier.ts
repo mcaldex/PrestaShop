@@ -46,7 +46,7 @@ import {
 
 import {expect} from 'chai';
 
-const baseContext: string = 'functional_FO_classic_checkout_orderConfirmation_multicarrier';
+const baseContext: string = 'functional_FO_classic_orderConfirmation_multicarrier';
 
 /*
 Pre-condition:
