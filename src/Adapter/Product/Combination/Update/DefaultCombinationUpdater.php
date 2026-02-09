@@ -80,7 +80,11 @@ class DefaultCombinationUpdater
 
         $this->hookDispatcher->dispatchWithParameters(
             'actionUpdateDefaultCombinationAfter',
-            ['id_product' => (int) $newDefaultCombination->id_product, 'id_product_attribute' => (int) $defaultCombinationId->getValue()]
+            [
+                'id_product' => (int) $newDefaultCombination->id_product,
+                'id_product_attribute' => (int) $defaultCombinationId->getValue(),
+                'id_shop' => $shopConstraint->isSingleShopContext() ? $shopConstraint->getShopId()->getValue() : null,
+            ]
         );
     }
 }
