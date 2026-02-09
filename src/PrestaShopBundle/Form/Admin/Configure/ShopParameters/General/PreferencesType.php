@@ -112,16 +112,16 @@ class PreferencesType extends TranslatorAwareType
         if ($showB2bToggles) {
             $builder
                 ->add(self::ENABLE_B2C_MODE, SwitchType::class, [
-                    'label' => $this->trans('Enable b2c mode (by default)', 'Admin.Shopparameters.Feature'),
+                    'label' => $this->trans('Enable b2c mode', 'Admin.Shopparameters.Feature'),
                     'help' => $this->trans(
-                        'The B2c model allows a client to order for themselves',
+                        'Activate or deactivate B2C mode. When this option is enabled, B2C features will be made available.',
                         'Admin.Shopparameters.Help'
                     ),
                 ])
                 ->add(self::ENABLE_B2B_MODE, SwitchType::class, [
                     'label' => $this->trans('Enable b2b mode', 'Admin.Shopparameters.Feature'),
                     'help' => $this->trans(
-                        'The B2B model allows a client to order for different business entities.',
+                        'Activate or deactivate B2B mode. When this option is enabled, B2B features will be made available.',
                         'Admin.Shopparameters.Help'
                     ),
                 ]);

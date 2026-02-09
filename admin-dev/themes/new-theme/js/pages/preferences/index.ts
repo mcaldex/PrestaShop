@@ -93,7 +93,10 @@ class Preferences {
 
     if (!b2cEnabled && !b2bEnabled) {
       this.setEnabled(this.b2cInputs, true);
+      return;
     }
+
+    this.updateContainersDisabledClass();
   }
 
   private setToggleReadOnly(inputs: HTMLInputElement[], preventTurningOff: boolean): void {
@@ -102,6 +105,19 @@ class Preferences {
       const isOffOption = el.value === '0';
       el.disabled = preventTurningOff && isOffOption;
     }
+  }
+
+  private updateContainersDisabledClass(): void {
+    this.updateContainerDisabledClass(this.b2cContainer, this.b2cInputs);
+    this.updateContainerDisabledClass(this.b2bContainer, this.b2bInputs);
+  }
+
+  private updateContainerDisabledClass(container: HTMLElement | null, inputs: HTMLInputElement[]): void {
+    if (!container) {
+      return;
+    }
+    const hasDisabledInput = inputs.some((el) => el.disabled);
+    container.classList.toggle('disabled', hasDisabledInput);
   }
 
   private preventAllOffOnSubmit(): void {
