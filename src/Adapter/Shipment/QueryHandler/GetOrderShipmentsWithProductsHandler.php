@@ -43,7 +43,8 @@ class GetOrderShipmentsWithProductsHandler implements GetOrderShipmentsWithProdu
     public function __construct(
         private readonly ShipmentRepository $shipmentRepository,
         private readonly CarrierRepository $carrierRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * @param GetOrderShipmentsWithProducts $query
