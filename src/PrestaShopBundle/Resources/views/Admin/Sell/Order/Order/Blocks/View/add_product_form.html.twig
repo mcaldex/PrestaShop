@@ -79,7 +79,7 @@
       {{ form_widget(addProductForm.quantity) }}
     </div>
 
-    {% if isMultishipmentIsEnabled %}
+    {% if isMultishipmentIsEnabled and orderHasShipment == true %}
       <div class="form-group">
         <label class="form-control-label">
           {{ 'Select shipment'|trans({}, 'Admin.Global') }}

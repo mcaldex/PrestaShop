@@ -676,6 +676,7 @@ class OrderController extends PrestaShopAdminController
         return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/add_product_form.html.twig', [
             'addProductForm' => $form->createView(),
             'orderForViewing' => $orderForViewing,
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
             'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
             'orderId' => $orderId,
         ]);
@@ -1163,7 +1164,7 @@ class OrderController extends PrestaShopAdminController
             }
 
             $this->dispatchCommand($addProductCommand);
-            if ($featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT)) {
+            if ($featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT) && $this->orderHasShipment($orderForViewing->getId()) === true) {
                 $shipmentId = (int) $request->get('shipment_id');
                 $this->dispatchCommand(new AddProductToShipment($shipmentId, $productId, $orderId, $combinationId));
             }
