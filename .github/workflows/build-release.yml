@@ -125,10 +125,10 @@ jobs:
           echo "Build artifacts:"
           ls -la "$RELEASE_DIR"
 
-      # - name: Upload release artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: open-source-archive
-      #     path: |
-      #       ${{ steps.release_dir.outputs.path }}/prestashop_*.zip
-      #       ${{ steps.release_dir.outputs.path }}/prestashop_*.xml
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-source-archive
+          path: |
+            ${{ steps.release_dir.outputs.path }}/prestashop_*.zip
+            ${{ steps.release_dir.outputs.path }}/prestashop_*.xml
