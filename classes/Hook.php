@@ -174,7 +174,8 @@ class HookCore extends ObjectModel
     }
 
     /**
-     * Return true if the hook name starts with "display"
+     * Checks if a hook is a display or action one. This is used for filtering modules on module positions page,
+     * validating permissions and other things.
      *
      * @param string $hook_name The name of the hook to check
      *
@@ -184,12 +185,24 @@ class HookCore extends ObjectModel
     {
         $hook_name = strtolower(static::normalizeHookName($hook_name));
 
-        if ($hook_name === 'header' || $hook_name === 'displayheader') {
-            // this hook is to add resources to the <head> section of the page
-            // so it doesn't display anything by itself
+        // Exceptions that ARE display hooks
+        if (in_array($hook_name, [
+            'dashboarddata',
+            'dashboardzoneone',
+            'dashboardzonetwo',
+        ])) {
+            return true;
+        }
+
+        // Exceptions that ARE NOT display hooks
+        if (in_array($hook_name, [
+            'header',
+            'displayheader',
+        ])) {
             return false;
         }
 
+        // All other cases - we check if the hook name starts with "display" or not
         return strpos($hook_name, 'display') === 0;
     }
 
