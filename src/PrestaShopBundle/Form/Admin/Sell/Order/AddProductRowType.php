@@ -102,7 +102,7 @@ class AddProductRowType extends TranslatorAwareType
             ])
             ->add('tax_rate', HiddenType::class)
             ->add('search', TextType::class, [
-                'label' => $this->trans('Search a product', 'Admin.Orderscustomers.Feature'),
+                'label' => $this->trans('Search for a product', 'Admin.Orderscustomers.Feature'),
                 'attr' => [
                     'class' => 'col-sm-12',
                     'autocomplete' => 'off',
