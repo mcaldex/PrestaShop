@@ -1166,7 +1166,10 @@ class OrderController extends PrestaShopAdminController
             $this->dispatchCommand($addProductCommand);
             if ($featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT) && $this->orderHasShipment($orderForViewing->getId()) === true) {
                 $shipmentId = (int) $request->get('shipment_id');
-                $this->dispatchCommand(new AddProductToShipment($shipmentId, $productId, $orderId, $combinationId));
+                $isVirtual = $request->get('virtual');
+                if (!$isVirtual) {
+                    $this->dispatchCommand(new AddProductToShipment($shipmentId, $productId, $orderId, $combinationId));
+                }
             }
         } catch (Exception $e) {
             return $this->json(

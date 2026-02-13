@@ -150,7 +150,10 @@ export default class OrderProductAutocomplete {
 
     if (selectedProduct.length !== 0) {
       this.input.val(selectedProduct[0].name);
-      if (this.selectShipment) {
+      const shipmentSelectorContainer = document.querySelector<HTMLElement>(OrderViewPageMap.selectAddShipmentContainer)!;
+      shipmentSelectorContainer.classList.toggle('d-none', selectedProduct[0].virtual === true);
+
+      if (this.selectShipment && selectedProduct[0].virtual === false) {
         this.populateShipmentSelect(id);
       }
       this.onItemClickedCallback(selectedProduct[0]);

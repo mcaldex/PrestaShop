@@ -140,6 +140,7 @@ export default {
   productAddFreeShippingSelect: '#add_product_row_free_shipping',
   productAddNewInvoiceInfo: '#addProductNewInvoiceInfo',
   selectAddShipment: '#add_product_row_addShipment',
+  selectAddShipmentContainer: '#addProductShipmentSelect',
   productEditSaveBtn: '.productEditSaveBtn',
   productEditCancelBtn: '.productEditCancelBtn',
   productEditRowTemplate: '#editProductTableRowTemplate',

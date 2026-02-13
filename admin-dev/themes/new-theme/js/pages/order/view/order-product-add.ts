@@ -289,6 +289,7 @@ export default class OrderProductAdd {
 
   setProduct(product: Record<string, any> | undefined): void {
     if (product) {
+      this.product = product;
       this.productIdInput.val(product.productId).trigger('change');
       const taxExcluded = window.ps_round(product.priceTaxExcl, this.currencyPrecision);
       this.priceTaxExcludedInput.val(taxExcluded);
@@ -347,6 +348,7 @@ export default class OrderProductAdd {
       quantity: this.quantityInput.val(),
       invoice_id: this.invoiceSelect.val(),
       free_shipping: this.freeShippingSelect.prop('checked'),
+      virtual: this.product.virtual,
       ...(this.isMultishipmentIsEnabled && {
         shipment_id: this.productShipmentSelect.val(),
       }),
