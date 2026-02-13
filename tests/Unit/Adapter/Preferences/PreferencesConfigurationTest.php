@@ -38,7 +38,31 @@ class PreferencesConfigurationTest extends TestCase
         $this->object = new PreferencesConfiguration($this->mockConfiguration);
     }
 
-    public function testGetConfiguration()
+    public static function shopModeProvider(): iterable
+    {
+        yield 'b2c_only' => [
+            true,
+            false,
+            PreferencesType::SHOP_MODE_B2C_ONLY,
+        ];
+
+        yield 'b2b_only' => [
+            false,
+            true,
+            PreferencesType::SHOP_MODE_B2B_ONLY,
+        ];
+
+        yield 'b2b_and_b2c' => [
+            true,
+            true,
+            PreferencesType::SHOP_MODE_B2B_AND_B2C,
+        ];
+    }
+
+    /**
+     * @dataProvider shopModeProvider
+     */
+    public function testGetConfiguration(bool $b2cEnabled, bool $b2bEnabled, string $expectedShopMode)
     {
         $this->mockConfiguration
             ->method('get')
@@ -55,8 +79,8 @@ class PreferencesConfigurationTest extends TestCase
                 [
                     ['PS_SSL_ENABLED', false, true],
                     ['PS_TOKEN_ENABLE', false, true],
-                    [B2CModeFeature::CONFIGURATION_NAME, false, true],
-                    [B2BModeFeature::CONFIGURATION_NAME, false, true],
+                    [B2CModeFeature::CONFIGURATION_NAME, false, $b2cEnabled],
+                    [B2BModeFeature::CONFIGURATION_NAME, false, $b2bEnabled],
                     ['PS_ALLOW_HTML_IFRAME', false, true],
                     ['PS_USE_HTMLPURIFIER', false, true],
                     ['PS_DISPLAY_SUPPLIERS', false, false],
@@ -71,8 +95,7 @@ class PreferencesConfigurationTest extends TestCase
             [
                 'enable_ssl' => true,
                 'enable_token' => true,
-                PreferencesType::ENABLE_B2C_MODE => true,
-                PreferencesType::ENABLE_B2B_MODE => true,
+                PreferencesType::SHOP_MODE => $expectedShopMode,
                 'allow_html_iframes' => true,
                 'use_htmlpurifier' => true,
                 'price_round_mode' => 'test',
@@ -100,7 +123,10 @@ class PreferencesConfigurationTest extends TestCase
         );
     }
 
-    public function testUpdateConfigurationWithInvalidSSLConfiguration()
+    /**
+     * @dataProvider shopModeProvider
+     */
+    public function testUpdateConfigurationWithInvalidSSLConfiguration(bool $b2cEnabled, bool $b2bEnabled, string $shopMode)
     {
         $this->mockConfiguration
             ->method('get')
@@ -123,8 +149,7 @@ class PreferencesConfigurationTest extends TestCase
                 [
                     'enable_ssl' => false,
                     'enable_token' => true,
-                    PreferencesType::ENABLE_B2C_MODE => true,
-                    PreferencesType::ENABLE_B2B_MODE => true,
+                    PreferencesType::SHOP_MODE => $shopMode,
                     'allow_html_iframes' => true,
                     'use_htmlpurifier' => true,
                     'price_round_mode' => 'test',
@@ -138,7 +163,10 @@ class PreferencesConfigurationTest extends TestCase
         );
     }
 
-    public function testUpdateConfiguration()
+    /**
+     * @dataProvider shopModeProvider
+     */
+    public function testUpdateConfiguration(bool $b2cEnabled, bool $b2bEnabled, string $shopMode)
     {
         $this->mockConfiguration
             ->method('get')
@@ -153,8 +181,8 @@ class PreferencesConfigurationTest extends TestCase
                 [
                     ['PS_SSL_ENABLED', true],
                     ['PS_TOKEN_ENABLE', true],
-                    [B2CModeFeature::CONFIGURATION_NAME, false, true],
-                    [B2BModeFeature::CONFIGURATION_NAME, false, true],
+                    [B2CModeFeature::CONFIGURATION_NAME, false, $b2cEnabled],
+                    [B2BModeFeature::CONFIGURATION_NAME, false, $b2bEnabled],
                     ['PS_ALLOW_HTML_IFRAME', true],
                     ['PS_USE_HTMLPURIFIER', true],
                     ['PS_DISPLAY_SUPPLIERS', false],
@@ -179,8 +207,7 @@ class PreferencesConfigurationTest extends TestCase
                 [
                     'enable_ssl' => false,
                     'enable_token' => true,
-                    PreferencesType::ENABLE_B2C_MODE => true,
-                    PreferencesType::ENABLE_B2B_MODE => true,
+                    PreferencesType::SHOP_MODE => $shopMode,
                     'allow_html_iframes' => true,
                     'use_htmlpurifier' => true,
                     'price_round_mode' => 'test',

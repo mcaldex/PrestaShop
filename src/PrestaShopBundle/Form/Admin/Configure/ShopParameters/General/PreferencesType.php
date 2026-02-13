@@ -23,8 +23,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class PreferencesType extends TranslatorAwareType
 {
-    public const ENABLE_B2B_MODE = 'enable_b2b_mode';
-    public const ENABLE_B2C_MODE = 'enable_b2c_mode';
+    public const SHOP_MODE = 'shop_mode';
+    public const SHOP_MODE_B2C_ONLY = 'b2c_only';
+    public const SHOP_MODE_B2B_ONLY = 'b2b_only';
+    public const SHOP_MODE_B2B_AND_B2C = 'b2b_and_b2c';
     /**
      * @var bool
      */
@@ -84,7 +86,7 @@ class PreferencesType extends TranslatorAwareType
     {
         $configuration = $this->configuration;
 
-        $showB2bToggles = $this->featureFlagStateChecker?->isEnabled('improved_b2b') ?? false;
+        $showB2bShopMode = $this->featureFlagStateChecker?->isEnabled('improved_b2b') ?? false;
 
         if ($this->requestStack->getCurrentRequest()->isSecure()) {
             $builder->add('enable_ssl', SwitchType::class, [
@@ -109,19 +111,26 @@ class PreferencesType extends TranslatorAwareType
                 ),
             ]);
 
-        if ($showB2bToggles) {
+        if ($showB2bShopMode) {
             $builder
-                ->add(self::ENABLE_B2C_MODE, SwitchType::class, [
-                    'label' => $this->trans('Enable b2c mode', 'Admin.Shopparameters.Feature'),
+                ->add(self::SHOP_MODE, ChoiceType::class, [
+                    'placeholder' => false,
+                    'choices' => [
+                        $this->trans(
+                            'B2C only',
+                            'Admin.Shopparameters.Feature') => self::SHOP_MODE_B2C_ONLY,
+                        $this->trans(
+                            'B2B only',
+                            'Admin.Shopparameters.Feature') => self::SHOP_MODE_B2B_ONLY,
+                        $this->trans(
+                            'B2B and B2C',
+                            'Admin.Shopparameters.Feature') => self::SHOP_MODE_B2B_AND_B2C,
+                    ],
+                    'label' => $this->trans(
+                        'Shop mode',
+                        'Admin.Shopparameters.Feature'),
                     'help' => $this->trans(
-                        'Activate or deactivate B2C mode. When this option is enabled, B2C features will be made available.',
-                        'Admin.Shopparameters.Help'
-                    ),
-                ])
-                ->add(self::ENABLE_B2B_MODE, SwitchType::class, [
-                    'label' => $this->trans('Enable b2b mode', 'Admin.Shopparameters.Feature'),
-                    'help' => $this->trans(
-                        'Activate or deactivate B2B mode. When this option is enabled, B2B features will be made available.',
+                        'Choose which features are enabled in your shop: B2C only, B2B only, or both.',
                         'Admin.Shopparameters.Help'
                     ),
                 ]);
