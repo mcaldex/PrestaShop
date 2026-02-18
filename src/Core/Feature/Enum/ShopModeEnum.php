@@ -1,20 +1,27 @@
 <?php
 /**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
  * NOTICE OF LICENSE
  *
- * This source file is subject to a commercial license from SOLEDIS
- * Use, copy, modification or distribution of this source file without written
- * license agreement from the SOLEDIS GROUP is strictly forbidden.
- * ___ ___ _ ___ ___ ___ ___
- * / __|/ _ \| | | __| \_ _/ __|
- * \__ \ (_) | |__| _|| |) | |\__ \
- * |___/\___/|____|___|___/___|___/
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/OSL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
  *
- * @author    SOLEDIS <prestashop@groupe-soledis.com>
- * @copyright 2026 SOLEDIS
- * @license   All Rights Reserved
+ * DISCLAIMER
  *
- * @developer HERVOUET Clément
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to https://devdocs.prestashop.com/ for more information.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
 namespace PrestaShop\PrestaShop\Core\Feature\Enum;
