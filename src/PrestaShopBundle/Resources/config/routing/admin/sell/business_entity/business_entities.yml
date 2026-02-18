@@ -1,0 +1,8 @@
+admin_business_entities_list:
+  path: /sell/business-entities
+  methods: [GET]
+  defaults:
+    _controller: PrestaShopBundle\Controller\Admin\Sell\BusinessEntity\BusinessEntitiesController::listAction
+    _legacy_controller: AdminBusinessEntities
+    _legacy_link: AdminBusinessEntities
+    _legacy_feature_flag: improved_b2b
