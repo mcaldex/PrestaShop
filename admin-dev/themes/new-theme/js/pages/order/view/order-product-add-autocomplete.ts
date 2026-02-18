@@ -130,11 +130,13 @@ export default class OrderProductAutocomplete {
 
     if (selectedProduct.length !== 0) {
       this.input.val(selectedProduct[0].name);
-      const shipmentSelectorContainer = document.querySelector<HTMLElement>(OrderViewPageMap.selectAddShipmentContainer)!;
-      shipmentSelectorContainer.classList.toggle('d-none', selectedProduct[0].virtual === true);
-
-      if (this.selectShipment && selectedProduct[0].virtual === false) {
-        this.populateShipmentSelect(id);
+      if (this.selectShipment) {
+        if (selectedProduct[0].virtual === false) {
+          this.populateShipmentSelect(id);
+        } else {
+          const shipmentSelectorContainer = document.querySelector<HTMLElement>(OrderViewPageMap.selectAddShipmentContainer)!;
+          shipmentSelectorContainer.classList.toggle('d-none', selectedProduct[0].virtual === true);
+        }
       }
       this.onItemClickedCallback(selectedProduct[0]);
     }
