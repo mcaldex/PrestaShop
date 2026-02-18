@@ -85,9 +85,7 @@ class ModuleCommand extends Command
     {
         $this->init($input, $output);
 
-        if ($input->getOption('skip-overrides')) {
-            $this->moduleManager->setSkipOverrides(true);
-        }
+        $skipOverrides = (bool) $input->getOption('skip-overrides');
 
         $moduleName = $input->getArgument('module name');
         $action = $input->getArgument('action');
@@ -106,10 +104,20 @@ class ModuleCommand extends Command
             return 1;
         }
 
-        if ($action === 'configure') {
-            $this->executeConfigureModuleAction($moduleName, $file);
-        } else {
-            $this->executeGenericModuleAction($action, $moduleName);
+        if ($skipOverrides) {
+            $this->configuration->setTemporary('PS_DISABLE_MODULE_OVERRIDES', 1);
+        }
+
+        try {
+            if ($action === 'configure') {
+                $this->executeConfigureModuleAction($moduleName, $file);
+            } else {
+                $this->executeGenericModuleAction($action, $moduleName);
+            }
+        } finally {
+            if ($skipOverrides) {
+                $this->configuration->setTemporary('PS_DISABLE_MODULE_OVERRIDES', 0);
+            }
         }
 
         return 0;

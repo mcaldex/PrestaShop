@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace PrestaShop\PrestaShop\Core\Module;
 
-use Configuration;
 use Exception;
 use Language as LegacyLanguage;
 use Module as LegacyModule;
@@ -445,14 +444,5 @@ class ModuleManager implements ModuleManagerInterface
     private function dispatchPreAction(ModuleInterface $module): void
     {
         $this->eventDispatcher->dispatch(new ModuleManagementEvent($module), ModuleManagementEvent::PRE_ACTION);
-    }
-
-    /**
-     * When set to true, all override operations (conflict check, install, uninstall)
-     * are skipped during module lifecycle actions (install, enable, disable, uninstall).
-     */
-    public function setSkipOverrides(bool $skip): void
-    {
-        Configuration::set('PS_DISABLE_MODULE_OVERRIDES', (int) $skip);
     }
 }

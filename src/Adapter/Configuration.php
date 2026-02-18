@@ -274,6 +274,14 @@ class Configuration extends ParameterBag implements ShopConfigurationInterface
     /**
      * {@inheritdoc}
      */
+    public function setTemporary(string $key, $value): void
+    {
+        ConfigurationLegacy::set($key, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->all());
