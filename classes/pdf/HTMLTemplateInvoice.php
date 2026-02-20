@@ -5,8 +5,9 @@
  */
 
 use PrestaShop\PrestaShop\Adapter\ContainerFinder;
-use PrestaShop\PrestaShop\Core\Domain\Shipment\Query\GetOrderShipmentsWithProducts;
 use PrestaShop\PrestaShop\Core\Util\Sorter;
+use PrestaShopBundle\Entity\Repository\ShipmentRepository;
+use PrestaShopBundle\Entity\Shipment;
 
 class HTMLTemplateInvoiceCore extends HTMLTemplate
 {
@@ -220,11 +221,15 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         }
 
         $containerFinder = new ContainerFinder(Context::getContext());
+        $container = $containerFinder->getContainer();
 
-        $queryBus = $containerFinder->getContainer()->get('prestashop.core.query_bus');
+        $doctrine = $container->get('doctrine');
 
-        /** @var \PrestaShop\PrestaShop\Core\Domain\Shipment\QueryResult\OrderShipmentWithProducts[] $shipmentsWithProducts */
-        $shipmentsWithProducts = $queryBus->handle(new GetOrderShipmentsWithProducts($this->order->id));
+        /** @var ShipmentRepository $shipmentRepository */
+        $shipmentRepository = $doctrine->getManager()->getRepository(Shipment::class);
+        $shipmentRepository->setTablePrefix(_DB_PREFIX_);
+
+        $shipmentsWithProducts = $this->getOrderShipmentsWithProducts($this->order->id, $shipmentRepository);
         $orderHasShipment = !empty($shipmentsWithProducts);
 
         $productsByShipment = [];
@@ -236,15 +241,15 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
         if ($orderHasShipment) {
             $orderDetailToShipmentId = [];
             foreach ($shipmentsWithProducts as $shipmentWithProducts) {
-                $shipmentId = $shipmentWithProducts->getShipmentId();
+                $shipmentId = $shipmentWithProducts['shipmentId'];
 
                 $productsByShipment['physical_products'][$shipmentId] = [
                     'products' => [],
-                    'carrierName' => $shipmentWithProducts->getCarrierName(),
-                    'trackingNumber' => $shipmentWithProducts->getTrackingNumber(),
+                    'carrierName' => $shipmentWithProducts['carrierName'],
+                    'trackingNumber' => $shipmentWithProducts['trackingNumber'],
                 ];
 
-                foreach ($shipmentWithProducts->getOrderDetailIds() as $orderDetailId) {
+                foreach ($shipmentWithProducts['orderDetailIds'] as $orderDetailId) {
                     $orderDetailToShipmentId[$orderDetailId] = $shipmentId;
                 }
             }
@@ -524,5 +529,77 @@ class HTMLTemplateInvoiceCore extends HTMLTemplate
             '%s.pdf',
             $this->order_invoice->getInvoiceNumberFormatted($id_lang, $id_shop)
         );
+    }
+
+    /**
+     * Get shipments with products (array of order details IDs) for an order.
+     *
+     * @param int $orderId
+     * @param ShipmentRepository $shipmentRepository
+     *
+     * @return array Array of shipment data with products
+     */
+    private function getOrderShipmentsWithProducts(int $orderId, ShipmentRepository $shipmentRepository): array
+    {
+        try {
+            $shipments = $shipmentRepository->findByOrderId($orderId);
+        } catch (Throwable $e) {
+            return [];
+        }
+
+        if (empty($shipments)) {
+            return [];
+        }
+
+        $shipmentProductMapping = $this->getShipmentProductMapping($orderId, $shipmentRepository);
+
+        $result = [];
+        foreach ($shipments as $shipment) {
+            $shipmentId = $shipment->getId();
+            $carrier = new Carrier($shipment->getCarrierId());
+
+            $orderDetailIds = $shipmentProductMapping[$shipmentId] ?? [];
+
+            $result[] = [
+                'shipmentId' => $shipmentId,
+                'orderDetailIds' => $orderDetailIds,
+                'carrierName' => $carrier->name,
+                'trackingNumber' => $shipment->getTrackingNumber(),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get shipment to order detail ID mapping.
+     * Returns an array where keys are shipment IDs and values are arrays of order detail IDs.
+     *
+     * @param int $orderId
+     * @param ShipmentRepository $shipmentRepository
+     *
+     * @return array<int, int[]>
+     */
+    private function getShipmentProductMapping(int $orderId, ShipmentRepository $shipmentRepository): array
+    {
+        $results = $shipmentRepository->getShipmentProductMappingByOrderId($orderId);
+
+        if (empty($results)) {
+            return [];
+        }
+
+        $mapping = [];
+        foreach ($results as $row) {
+            $shipmentId = (int) $row['id_shipment'];
+            $orderDetailId = (int) $row['id_order_detail'];
+
+            if (!isset($mapping[$shipmentId])) {
+                $mapping[$shipmentId] = [];
+            }
+
+            $mapping[$shipmentId][] = $orderDetailId;
+        }
+
+        return $mapping;
     }
 }

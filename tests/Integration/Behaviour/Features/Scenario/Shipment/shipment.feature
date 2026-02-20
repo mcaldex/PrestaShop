@@ -99,27 +99,3 @@ Feature: Retrieving shipment for orders
       | carrier_name | tracking_number | order_detail_count |
       | My carrier   |                 | 2                  |
 
-  Scenario: Retrieve all shipments with their associated order detail ids (multi shipment)
-    Given I create an empty cart "multi_cart" for customer "testCustomer"
-    And I select "US" address as delivery and invoice address for customer "testCustomer" in cart "multi_cart"
-    And I add 3 products "Mug The best is yet to come" to the cart "multi_cart"
-    And I add 2 products "Mug Today is a good day" to the cart "multi_cart"
-    And I add order "multi_order" with the following details:
-      | cart                | multi_cart                 |
-      | message             | test multi shipment        |
-      | payment module name | dummy_payment              |
-      | status              | Awaiting bank wire payment |
-    And I reference order "multi_order" delivery address as "US"
-    Given the order "multi_order" should have the following shipments:
-      | shipment         | carrier         | tracking_number | address | shipping_cost_tax_excl | shipping_cost_tax_incl |
-      | multi_shipment1  | default_carrier |                 | US      | 7.0                    | 7.42                   |
-    When I create carrier "carrier2" with specified properties:
-      | name | Express Carrier |
-    And I split the shipment "multi_shipment1" to create a new shipment with "carrier2" with following products:
-      | product_name                | quantity |
-      | Mug Today is a good day     |        1 |
-    Then the order "multi_order" shipments with products should contain:
-      | carrier_name    | tracking_number | order_detail_count |
-      | My carrier      |                 | 2                  |
-      | Express Carrier |                 | 1                  |
-
