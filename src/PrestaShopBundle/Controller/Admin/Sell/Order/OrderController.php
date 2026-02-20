@@ -101,7 +101,6 @@ use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
 use PrestaShopBundle\Exception\InvalidModuleException;
 use PrestaShopBundle\Form\Admin\Sell\Customer\PrivateNoteType;
 use PrestaShopBundle\Form\Admin\Sell\Order\AddOrderCartRuleType;
-use PrestaShopBundle\Form\Admin\Sell\Order\AddProductRowType;
 use PrestaShopBundle\Form\Admin\Sell\Order\CartSummaryType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderAddressType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderCurrencyType;
@@ -435,6 +434,7 @@ class OrderController extends PrestaShopAdminController
         CurrencyDataProvider $currencyDataProvider,
         FeatureFlagStateCheckerInterface $featureFlagStateChecker,
         #[Autowire(service: 'PrestaShop\PrestaShop\Core\Grid\Factory\ShipmentFactory')] GridFactoryInterface $shipmentGridFactory,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
         ShipmentFilters $filters,
         Tools $tools,
     ): Response {
@@ -505,10 +505,7 @@ class OrderController extends PrestaShopAdminController
         // @todo: Fix me. Should not rely on legacy object model - Currency
         $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
 
-        $addProductRowForm = $this->createForm(AddProductRowType::class, [], [
-            'order_id' => $orderId,
-            'currency' => $orderCurrency,
-        ]);
+        $addProductForm = $addProductFormBuilder->getFormFor($orderId);
 
         $editProductRowForm = $this->createForm(EditProductRowType::class, [], [
             'order_id' => $orderId,
@@ -602,7 +599,7 @@ class OrderController extends PrestaShopAdminController
             'invoiceManagementIsEnabled' => $orderForViewing->isInvoiceManagementIsEnabled(),
             'changeOrderAddressForm' => $changeOrderAddressForm?->createView(),
             'orderMessageForm' => $orderMessageForm->createView(),
-            'addProductRowForm' => $addProductRowForm->createView(),
+            'addProductRowForm' => $addProductForm->createView(),
             'editProductRowForm' => $editProductRowForm->createView(),
             'backOfficeOrderButtons' => $backOfficeOrderButtons,
             'merchandiseReturnEnabled' => $merchandiseReturnEnabled,
@@ -641,17 +638,11 @@ class OrderController extends PrestaShopAdminController
     #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
     public function getAddProductForm(
         int $orderId,
-        CurrencyDataProvider $currencyDataProvider,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
         FeatureFlagStateCheckerInterface $featureFlagStateChecker
     ): Response {
         $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
-        $currency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
-
-        $form = $this->createForm(AddProductRowType::class, [], [
-            'order_id' => $orderId,
-            'currency' => $currency,
-            'is_multishipment_is_enabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
-        ]);
+        $form = $addProductFormBuilder->getFormFor($orderId);
 
         return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/add_product_form.html.twig', [
             'addProductForm' => $form->createView(),

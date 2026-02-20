@@ -42,7 +42,7 @@
       class="table"
       id="orderProductsTable"
       data-currency-precision="{{ orderCurrency.precision }}"
-      data-multishipment-enabled="{{ isImprovedShipmentFeatureFlagEnabled }}"
+      data-multishipment-enabled="{{ isImprovedShipmentFeatureFlagEnabled and orderHasShipment == true }}"
     >
       <thead>
         <tr>
@@ -87,7 +87,7 @@
       </thead>
       <tbody>
         {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/product_list.html.twig') }}
-        {% if isImprovedShipmentFeatureFlagEnabled is defined and isImprovedShipmentFeatureFlagEnabled == false %}
+        {% if orderHasShipment == false %}
           {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/add_product_row.html.twig') }}
         {% endif %}
         {{ include('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/edit_product_row.html.twig') }}
@@ -139,7 +139,7 @@
             type="button"
             class="btn btn-outline-secondary js-product-action-btn mr-3"
             id="addProductBtn"
-            {% if isImprovedShipmentFeatureFlagEnabled is defined and isImprovedShipmentFeatureFlagEnabled == true %}data-toggle="modal" data-target="#addOrderProductModal"{% endif %}
+            {% if isImprovedShipmentFeatureFlagEnabled is defined and isImprovedShipmentFeatureFlagEnabled == true and orderHasShipment == true %}data-toggle="modal" data-target="#addOrderProductModal"{% endif %}
           >
             <i class="material-icons">add_circle_outline</i>
             {{ 'Add a product'|trans({}, 'Admin.Orderscustomers.Feature') }}

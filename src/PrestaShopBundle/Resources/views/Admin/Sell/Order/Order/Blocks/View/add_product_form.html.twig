@@ -93,6 +93,12 @@
       {{ form_row(addProductForm.confirm_new_invoice) }}
     </div>
   </div>
-</div>
 
-{{ form_end(addProductForm, {render_rest: false}) }}
+  {# to remove when the feature flag is released  #}
+  {% do addProductForm.add.setRendered() %}
+  {% do addProductForm.cancel.setRendered() %}
+  {% do addProductForm.invoice.setRendered() %}
+  {% do addProductForm.addProductCombinations.setRendered() %}
+
+  {{ form_end(addProductForm) }}
+</div>
