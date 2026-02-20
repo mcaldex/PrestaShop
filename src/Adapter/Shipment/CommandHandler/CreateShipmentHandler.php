@@ -15,6 +15,7 @@ use PrestaShop\PrestaShop\Adapter\Carrier\ShippingCostCalculator;
 use PrestaShop\PrestaShop\Adapter\Country\Repository\CountryRepository;
 use PrestaShop\PrestaShop\Adapter\Currency\Repository\CurrencyRepository;
 use PrestaShop\PrestaShop\Adapter\Order\Repository\OrderRepository;
+use PrestaShop\PrestaShop\Adapter\Product\Combination\Repository\CombinationRepository;
 use PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository;
 use PrestaShop\PrestaShop\Adapter\Shop\Context as ShopContext;
 use PrestaShop\PrestaShop\Core\CommandBus\Attributes\AsCommandHandler;
@@ -44,6 +45,7 @@ class CreateShipmentHandler implements CreateShipmentHandlerInterface
         private readonly ShippingCostCalculator $shippingCostCalculator,
         private readonly ShopContext $shopContext,
         private readonly CurrencyRepository $currencyRepository,
+        private readonly CombinationRepository $combinationRepository,
     ) {
     }
 
@@ -82,17 +84,26 @@ class CreateShipmentHandler implements CreateShipmentHandlerInterface
     private function calculateShippingCosts(Order $order, int $carrierId, ProductId $productId, int $quantity, ?CombinationId $combinationId): array
     {
         try {
-            $product = $this->productRepository->get($productId, new ShopId($this->shopContext->getContextShopID()));
+            $shopId = new ShopId($this->shopContext->getContextShopID());
+            $product = $this->productRepository->get($productId, $shopId);
+            $attributeWeight = null;
+            $productPriceWt = (float) $product->price;
+
+            if (empty($combinationId->getValue())) {
+                $combination = $this->combinationRepository->get($combinationId, $shopId);
+                $attributeWeight = (float) $product->weight + (float) $combination->weight;
+                $productPrice += (float) $combination->price;
+            }
 
             $productArray = [
                 'id_product' => (int) $product->id,
                 'id_product_attribute' => $combinationId->getValue(),
                 'quantity' => $quantity,
                 'weight' => (float) $product->weight,
-                'weight_attribute' => null,
+                'weight_attribute' => $attributeWeight,
                 'is_virtual' => (bool) $product->is_virtual,
                 'additional_shipping_cost' => (float) $product->additional_shipping_cost,
-                'price_wt' => (float) $product->price,
+                'price_wt' => $productPrice,
             ];
 
             $products = [$productArray];
@@ -101,7 +112,6 @@ class CreateShipmentHandler implements CreateShipmentHandlerInterface
             $country = $this->countryRepository->get(new CountryId((int) $address->id_country));
             $currency = $this->currencyRepository->get(new CurrencyId((int) $order->id_currency));
 
-            $productPrice = (float) $product->price;
             $orderTotal = $productPrice * $quantity;
 
             $request = new ShippingCalculationRequest(
