@@ -3078,6 +3078,18 @@ abstract class ModuleCore implements ModuleInterface
                 }
             }
 
+            // Check if none of the traits already exists in the override class
+            foreach ($module_class->getTraitNames() as $trait) {
+                if (in_array($trait, $override_class->getTraitNames(), true)) {
+                    throw new Exception(Context::getContext()->getTranslator()->trans('The trait %1$s in the class %2$s is already used.', [$trait, $classname], 'Admin.Modules.Notification'));
+                }
+
+                $module_file = preg_replace('/(^\s+)(use\s+(?!function\b|const\b)[^;]*\b' . preg_quote($trait, '/') . '\b[^;]*;)/ism', "$1/*\n$1 * module: " . $this->name . "\n$1 * date: " . date('Y-m-d H:i:s') . "\n$1 * version: " . $this->version . "\n$1 */\n$1$2", $module_file);
+                if ($module_file === null) {
+                    throw new Exception(Context::getContext()->getTranslator()->trans('Failed to override trait %1$s in class %2$s.', [$trait, $classname], 'Admin.Modules.Notification'));
+                }
+            }
+
             // Insert the methods from module override in override
             $copy_from = array_slice($module_file, $module_class->getStartLine() + 1, $module_class->getEndLine() - $module_class->getStartLine() - 2);
             array_splice($override_file, $override_class->getEndLine() - 1, 0, $copy_from);
@@ -3141,6 +3153,14 @@ abstract class ModuleCore implements ModuleInterface
                         throw new Exception(Context::getContext()->getTranslator()->trans('Failed to override constant %1$s in class %2$s.', [$constant, $classname], 'Admin.Modules.Notification'));
                     }
                 }
+
+                foreach ($module_class->getTraitNames() as $trait_name) {
+                    $module_file = preg_replace('/(^\s+)(use\s+(?!function\b|const\b)[^;]*\b' . preg_quote($trait_name, '/') . '\b[^;]*;)/ism', "$1/*\n$1 * module: " . $this->name . "\n$1 * date: " . date('Y-m-d H:i:s') . "\n$1 * version: " . $this->version . "\n$1 */\n$1$2", $module_file);
+                    if ($module_file === null) {
+                        throw new Exception(Context::getContext()->getTranslator()->trans('Failed to override trait %1$s in class %2$s.', [$trait_name, $classname], 'Admin.Modules.Notification'));
+                    }
+                }
+
             }
 
             file_put_contents($override_dest, preg_replace($pattern_escape_com, '', $module_file));
@@ -3183,6 +3203,7 @@ abstract class ModuleCore implements ModuleInterface
             $splDir = $splDir->getPathInfo();
         } while ($splDir->getPath() !== $directoryOverride);
     }
+
 
     /**
      * Remove all methods in a module override from the override class.
@@ -3285,6 +3306,27 @@ abstract class ModuleCore implements ModuleInterface
                 }
             }
 
+            // Remove trait uses from override file
+            $override_file_original = $override_file;
+            foreach ($override_file as $line_number => &$line_content) {
+                if (!preg_match('/^\s*use\s+(?!function\b|const\b)/i', $line_content)) {
+                    continue;
+                }
+
+                if (isset($override_file[$line_number - 4])
+                    && preg_match('/\* module: (' . $this->name . ')/ism', $override_file[$line_number - 4])
+                ) {
+                    $override_file[$line_number - 5] = $override_file[$line_number - 4] = $override_file[$line_number - 3] = $override_file[$line_number - 2] = $override_file[$line_number - 1] = '#--remove--#';
+                    $line_content = '#--remove--#';
+
+                    $next = $line_number;
+                    do {
+                        $override_file[$next] = '#--remove--#';
+                        ++$next;
+                    } while (isset($override_file_original[$next - 1]) && !preg_match('/;/', $override_file_original[$next - 1]));
+                }
+            }
+
             $count = count($override_file);
             for ($i = 0; $i < $count; ++$i) {
                 if (preg_match('/(^\s*\/\/.*)/i', $override_file[$i])) {
@@ -3335,7 +3377,8 @@ abstract class ModuleCore implements ModuleInterface
                 // If no valuable code remains then we can delete it
                 $to_delete = $override_class->getConstants() === []
                     && $override_class->getProperties() === []
-                    && $override_class->getMethods() === [];
+                    && $override_class->getMethods() === []
+                    && $override_class->getTraitNames() === [];
             }
         }
 
