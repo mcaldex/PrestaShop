@@ -41,21 +41,21 @@ class BusinessEntityCustomerB2b
     private ?int $id = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\BusinessEntity", inversedBy="businessEntityCustomerB2bs")
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2B\BusinessEntity", inversedBy="businessEntityCustomerB2bs")
      *
      * @ORM\JoinColumn(name="id_business_entity", referencedColumnName="id_business_entity", nullable=false)
      */
     private BusinessEntity $businessEntity;
 
     /**
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\CustomerB2b", inversedBy="businessEntityCustomerB2bs")
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2B\CustomerB2b", inversedBy="businessEntityCustomerB2bs")
      *
      * @ORM\JoinColumn(name="id_customer_b2b", referencedColumnName="id_customer_b2b", nullable=false)
      */
     private CustomerB2b $customerB2b;
 
     /**
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2bRole", inversedBy="businessEntityCustomerB2bs")
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2B\B2bRole", inversedBy="businessEntityCustomerB2bs")
      *
      * @ORM\JoinColumn(name="id_role_b2b", referencedColumnName="id_role", nullable=false)
      */

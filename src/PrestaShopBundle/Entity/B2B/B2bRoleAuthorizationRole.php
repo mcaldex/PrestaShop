@@ -27,7 +27,7 @@ class B2bRoleAuthorizationRole
     /**
      * @ORM\Id
      *
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2bRole", inversedBy="b2bRoleAuthorizationRoles")
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2B\B2bRole", inversedBy="b2bRoleAuthorizationRoles")
      *
      * @ORM\JoinColumn(name="id_role", referencedColumnName="id_role", nullable=false)
      */

@@ -68,7 +68,7 @@ class CustomerB2b
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="PrestaShopBundle\Entity\BusinessEntityCustomerB2b",
+     *     targetEntity="PrestaShopBundle\Entity\B2B\BusinessEntityCustomerB2b",
      *     mappedBy="customerB2b",
      *     cascade={"persist"}
      * )

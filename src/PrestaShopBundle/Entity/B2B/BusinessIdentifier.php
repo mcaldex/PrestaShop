@@ -39,7 +39,7 @@ class BusinessIdentifier
     private bool $deleted = false;
 
     /**
-     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\BusinessEntityIdentifier", mappedBy="businessIdentifier")
+     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\B2B\BusinessEntityIdentifier", mappedBy="businessIdentifier")
      */
     private Collection $businessEntityIdentifiers;
 

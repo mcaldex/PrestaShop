@@ -23,7 +23,7 @@ class BusinessEntityAddress
     /**
      * @ORM\Id
      *
-     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\BusinessEntity", inversedBy="businessEntityAddresses")
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\B2B\BusinessEntity", inversedBy="businessEntityAddresses")
      *
      * @ORM\JoinColumn(name="id_business_entity", referencedColumnName="id_business_entity", nullable=false)
      */

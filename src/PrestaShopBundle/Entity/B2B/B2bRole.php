@@ -36,12 +36,12 @@ class B2bRole
     private string $role;
 
     /**
-     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\BusinessEntityCustomerB2b", mappedBy="b2bRole")
+     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\B2B\BusinessEntityCustomerB2b", mappedBy="b2bRole")
      */
     private Collection $businessEntityCustomerB2bs;
 
     /**
-     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\B2bRoleAuthorizationRole", mappedBy="role")
+     * @ORM\OneToMany(targetEntity="PrestaShopBundle\Entity\B2B\B2bRoleAuthorizationRole", mappedBy="role")
      */
     private Collection $b2bRoleAuthorizationRoles;
 
