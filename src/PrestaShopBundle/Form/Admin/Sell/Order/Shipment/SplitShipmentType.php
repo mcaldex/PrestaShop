@@ -68,6 +68,7 @@ class SplitShipmentType extends AbstractType
             return $this->availableCarriersForShipmentChoiceProvider->getChoices([
                 'shipment_id' => $options['data']['shipment_id'],
                 'selectedProducts' => $selectedProductsId,
+                'useCurrentCarrierId' => false,
             ]);
         }
 
