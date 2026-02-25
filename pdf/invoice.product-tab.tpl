@@ -2,6 +2,11 @@
  * For the full copyright and license information, please view the
  * docs/licenses/LICENSE.txt file that was distributed with this source code.
  *}
+
+{**
+* If the order contains shipment, it means that the order was made with the feature flag "improved shipment" enabled,
+* this template is only used for virtual products.
+*}
 {if $has_shipment}
 	<table width="100%" cellpadding="4" cellspacing="0" style="margin-bottom: 5px;">
 		<tr>
