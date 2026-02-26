@@ -168,11 +168,13 @@ class DiscountFormDataProvider implements FormDataProviderInterface
             ],
             'value' => [
                 'reduction' => [
+                    'value' => [
+                        'amount' => $isAmountDiscount
+                            ? (float) (string) $discountForEditing->getReductionAmount()->getAmount()
+                            : (float) (string) $discountForEditing->getReductionPercent(),
+                        'currency' => $discountForEditing->getReductionAmount()?->getCurrencyId(),
+                    ],
                     'type' => $isAmountDiscount ? DiscountSettings::AMOUNT : DiscountSettings::PERCENT,
-                    'value' => $isAmountDiscount
-                        ? (float) (string) $discountForEditing->getReductionAmount()->getAmount()
-                        : (float) (string) $discountForEditing->getReductionPercent(),
-                    'currency' => $discountForEditing->getReductionAmount()?->getCurrencyId(),
                     'include_tax' => $discountForEditing->getReductionAmount()?->isTaxIncluded(),
                 ],
             ],

@@ -168,16 +168,18 @@ class DiscountFormDataHandler implements FormDataHandlerInterface
      */
     private function setDiscountValue(AddDiscountCommand|UpdateDiscountCommand $command, array $data): void
     {
-        if ($data['value']['reduction']['type'] === DiscountSettings::AMOUNT) {
+        $reduction = $data['value']['reduction'];
+
+        if ($reduction['type'] === DiscountSettings::AMOUNT) {
             $command->setReductionAmount(
-                new DecimalNumber((string) $data['value']['reduction']['value']),
-                (int) $data['value']['reduction']['currency'],
-                (bool) $data['value']['reduction']['include_tax']
+                new DecimalNumber((string) $reduction['value']['amount']),
+                (int) $reduction['value']['currency'],
+                (bool) $reduction['include_tax']
             );
-        } elseif ($data['value']['reduction']['type'] === DiscountSettings::PERCENT) {
-            $command->setReductionPercent(new DecimalNumber((string) $data['value']['reduction']['value']));
+        } elseif ($reduction['type'] === DiscountSettings::PERCENT) {
+            $command->setReductionPercent(new DecimalNumber((string) $reduction['value']['amount']));
         } else {
-            throw new RuntimeException('Unknown discount value type ' . $data['value']['reduction']['type']);
+            throw new RuntimeException('Unknown discount value type ' . $reduction['type']);
         }
     }
 

@@ -271,3 +271,7 @@
 .pstaggerClosingCross  {
   cursor: pointer;
 }
+
+.currency-money .input-group-append select {
+  padding-right: var(--#{$cdk}size-32);
+}
