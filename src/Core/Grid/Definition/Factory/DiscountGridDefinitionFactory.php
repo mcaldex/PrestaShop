@@ -20,6 +20,7 @@ use PrestaShop\PrestaShop\Core\Grid\Column\ColumnCollectionInterface;
 use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\ActionColumn;
 use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\BulkActionColumn;
 use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\DataColumn;
+use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\DiscountUsageColumn;
 use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\ToggleColumn;
 use PrestaShop\PrestaShop\Core\Grid\Filter\Filter;
 use PrestaShop\PrestaShop\Core\Grid\Filter\FilterCollection;
@@ -103,6 +104,14 @@ final class DiscountGridDefinitionFactory extends AbstractGridDefinitionFactory 
                     ->setName($this->trans('Code', [], 'Admin.Global'))
                     ->setOptions([
                         'field' => 'code',
+                    ])
+            )
+            ->add(
+                (new DiscountUsageColumn('usage'))
+                    ->setName($this->trans('Usage', [], 'Admin.Catalog.Feature'))
+                    ->setOptions([
+                        'quantity_used_field' => 'quantity_used',
+                        'total_quantity_field' => 'total_quantity',
                     ])
             )
             ->add(
