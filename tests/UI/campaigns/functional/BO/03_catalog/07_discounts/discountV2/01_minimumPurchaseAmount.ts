@@ -370,14 +370,14 @@ describe('BO - Catalog - Discounts : Minimum purchase amount (On cart amount)', 
 
       await foHummingbirdCartPage.reloadPage(page);
 
-      const discountTaxExcluded = utilsCore.percentage(parseFloat(editDiscountData.discountValue.toString()),
-        20) + editDiscountData.discountValue;
+      const discount = utilsCore.percentage(parseFloat(editDiscountData.discountValue.toString()),
+        20) + parseFloat(editDiscountData.discountValue.toString());
 
       const discountValue = await foHummingbirdCartPage.getCartRuleValue(page);
-      expect(discountValue).to.contains(`-€${discountTaxExcluded.toFixed(2)}`);
+      expect(discountValue).to.contains(`-€${discount.toFixed(2)}`);
 
       const subTotalDiscount = await foHummingbirdCartPage.getSubtotalDiscountValue(page);
-      expect(subTotalDiscount.toString()).to.equal(`-${discountTaxExcluded}`);
+      expect(subTotalDiscount.toString()).to.equal(`-${discount}`);
     });
 
     it('should check the shipping cost', async function () {
@@ -392,7 +392,7 @@ describe('BO - Catalog - Discounts : Minimum purchase amount (On cart amount)', 
 
       const total = dataProducts.demo_3.finalPrice + dataProducts.demo_5.price;
       const discount = utilsCore.percentage(parseFloat(editDiscountData.discountValue.toString()),
-        20) + editDiscountData.discountValue;
+        20) + parseFloat(editDiscountData.discountValue.toString());
 
       const totalAfterDiscount = await foHummingbirdCartPage.getATIPrice(page);
       expect(totalAfterDiscount.toString()).to.equal((total - discount).toFixed(2));
