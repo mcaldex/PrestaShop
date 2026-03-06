@@ -652,6 +652,7 @@ class OrderController extends PrestaShopAdminController
         $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
         $form = $orderProductFormBuilder->getFormFor($orderId);
         $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
+        // actually it will be removed when the query is ready.
         $shipments = [
             [
                 'id' => '1',
