@@ -14,15 +14,9 @@ use PrestaShop\PrestaShop\Core\Domain\Shipment\ValueObject\OrderDetailId;
 
 class GetShipmentsForOrderDetail
 {
-    /**
-     * @var OrderId
-     */
-    private $orderId;
+    private OrderId $orderId;
 
-    /**
-     * @var OrderDetailId
-     */
-    private $orderDetailId;
+    private OrderDetailId $orderDetailId;
 
     public function __construct(int $orderId, int $orderDetailId)
     {

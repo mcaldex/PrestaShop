@@ -14,17 +14,11 @@ class ShipmentForOrderDetail
     ) {
     }
 
-    /**
-     * @return int
-     */
     public function getShipmentId(): int
     {
         return $this->shipmentId;
     }
 
-    /**
-     * @return int
-     */
     public function getQuantity(): int
     {
         return $this->quantity;
