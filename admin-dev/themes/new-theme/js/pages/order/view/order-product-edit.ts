@@ -257,9 +257,9 @@ export default class OrderProductEdit {
 
     if (this.priceTotalText) {
       if (this.isMultishipmentIsEnabled) {
-        this.priceTotalText.val(<string><unknown>updatedTotal);
+        this.priceTotalText.val(String(updatedTotal));
       } else {
-        this.priceTotalText.html(<string><unknown>updatedTotal);
+        this.priceTotalText.html(String(updatedTotal));
       }
     }
 
@@ -347,11 +347,11 @@ export default class OrderProductEdit {
         this.productRow.find(OrderViewPageMap.productEditName).html(),
       );
       this.locationText?.html(product.location);
-      this.availableText?.html(<string><unknown>product.availableQuantity);
+      this.availableText?.html(String(product.availableQuantity));
       this.productRow.addClass('d-none').after(this.productRowEdit!.removeClass('d-none'));
-      this.priceTotalText?.html(<string> <unknown> this.initialTotal);
+      this.priceTotalText?.html(String(this.initialTotal));
     } else {
-      this.priceTotalText?.val(<string> <unknown> this.initialTotal);
+      this.priceTotalText?.val(String(this.initialTotal));
     }
 
     this.setupListener();
