@@ -294,6 +294,13 @@ ul {
   }
 }
 
+// CSSJanus flips right: 0 to left: 0, but the quick-nav panel must stay at the right edge
+#right-sidebar {
+  right: 0;
+  left: auto;
+  float: right;
+}
+
 .material-icons {
   &.rtl-flip {
     transform: scaleX(-1);
