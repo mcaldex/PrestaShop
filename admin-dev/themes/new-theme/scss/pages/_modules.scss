@@ -631,7 +631,8 @@ form#importDropzone {
  */
 
 #modules-position-selection-panel {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 1;
   display: none;
 
