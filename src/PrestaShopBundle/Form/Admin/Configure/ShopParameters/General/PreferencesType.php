@@ -9,6 +9,7 @@ namespace PrestaShopBundle\Form\Admin\Configure\ShopParameters\General;
 use PrestaShop\PrestaShop\Adapter\Entity\Order;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Feature\Enum\ShopModeEnum;
+use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagSettings;
 use PrestaShop\PrestaShop\Core\FeatureFlag\FeatureFlagStateCheckerInterface;
 use PrestaShopBundle\Form\Admin\Type\SwitchType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
@@ -86,7 +87,7 @@ class PreferencesType extends TranslatorAwareType
     {
         $configuration = $this->configuration;
 
-        $showB2bShopMode = $this->featureFlagStateChecker?->isEnabled('improved_b2b') ?? false;
+        $showB2bShopMode = $this->featureFlagStateChecker?->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_B2B) ?? false;
 
         if ($this->requestStack->getCurrentRequest()->isSecure()) {
             $builder->add('enable_ssl', SwitchType::class, [

@@ -19,15 +19,9 @@ use PrestaShopLogger;
  */
 class PreferencesConfiguration implements DataConfigurationInterface
 {
-    /**
-     * @var Configuration
-     */
-    private $configuration;
-
     public function __construct(
-        Configuration $configuration,
+        private readonly Configuration $configuration,
     ) {
-        $this->configuration = $configuration;
     }
 
     /**
