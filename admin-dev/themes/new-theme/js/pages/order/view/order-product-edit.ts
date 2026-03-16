@@ -139,7 +139,7 @@ export default class OrderProductEdit {
 
   setupListener(): void {
     if (this.isMultishipmentIsEnabled && this.shipmentInputs.length > 0) {
-      this.updateShipmentQtyCounter(<number> this.quantity);
+      this.updateShipmentQtyCounter(this.quantity!);
       this.shipmentInputs.forEach((input) => {
         input.addEventListener('change', this.boundHandleShipment);
         input.addEventListener('keyup', this.boundHandleShipment);
@@ -231,7 +231,7 @@ export default class OrderProductEdit {
 
   handleShipmentQty(): void {
     const total = this.shipmentInputs.reduce((sum, input) => sum + Number(input.value), 0);
-    const availableQuantity = parseInt(<string> this.quantityInput.data('availableQuantity'), 10);
+    const availableQuantity = parseInt(this.quantityInput.data('availableQuantity'), 10);
     this.quantity = total;
     this.quantityInput.val(total);
     this.updateShipmentQtyCounter(total);
@@ -243,7 +243,7 @@ export default class OrderProductEdit {
     if (!this.shipmentQtyCounter) {
       return;
     }
-    const availableQuantity = parseInt(<string> this.quantityInput.data('availableQuantity'), 10);
+    const availableQuantity = parseInt(this.quantityInput.data('availableQuantity'), 10);
     this.shipmentQtyCounter.textContent = `(${total} / ${availableQuantity})`;
     this.shipmentQtyCounter.classList.toggle('text-danger', total > availableQuantity);
     this.shipmentQtyCounter.classList.toggle('text-muted', total >= 0 && total <= availableQuantity);
