@@ -101,7 +101,6 @@ use PrestaShopBundle\Form\Admin\Sell\Order\CartSummaryType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderAddressType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrderCurrencyType;
 use PrestaShopBundle\Form\Admin\Sell\Order\ChangeOrdersStatusType;
-use PrestaShopBundle\Form\Admin\Sell\Order\EditProductRowType;
 use PrestaShopBundle\Form\Admin\Sell\Order\InternalNoteType;
 use PrestaShopBundle\Form\Admin\Sell\Order\OrderMessageType;
 use PrestaShopBundle\Form\Admin\Sell\Order\OrderPaymentType;
@@ -429,6 +428,7 @@ class OrderController extends PrestaShopAdminController
         FeatureFlagStateCheckerInterface $featureFlagStateChecker,
         #[Autowire(service: 'PrestaShop\PrestaShop\Core\Grid\Factory\ShipmentFactory')] GridFactoryInterface $shipmentGridFactory,
         #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.add_product_form_builder')] FormBuilderInterface $addProductFormBuilder,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.edit_order_product_form_builder')] FormBuilderInterface $editProductFormBuilder,
         ShipmentFilters $filters,
         Tools $tools,
     ): Response {
@@ -500,11 +500,7 @@ class OrderController extends PrestaShopAdminController
         $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
 
         $addProductForm = $addProductFormBuilder->getFormFor($orderId);
-
-        $editProductRowForm = $this->createForm(EditProductRowType::class, [], [
-            'order_id' => $orderId,
-            'symbol' => $orderCurrency->symbol,
-        ]);
+        $editProductRowForm = $editProductFormBuilder->getFormFor($orderId);
 
         $internalNoteForm = $this->createForm(InternalNoteType::class, [
             'note' => $orderForViewing->getNote(),
@@ -643,6 +639,27 @@ class OrderController extends PrestaShopAdminController
             'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
             'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
             'orderId' => $orderId,
+        ]);
+    }
+
+    #[AdminSecurity("is_granted('update', 'AdminOrders')", redirectRoute: 'admin_orders_view', redirectQueryParamsToKeep: ['orderId'], message: 'You do not have permission to edit this.')]
+    public function getEditProductForm(
+        int $orderId,
+        #[Autowire(service: 'prestashop.core.form.identifiable_object.builder.edit_order_product_form_builder')] FormBuilderInterface $orderProductFormBuilder,
+        FeatureFlagStateCheckerInterface $featureFlagStateChecker,
+        CurrencyDataProvider $currencyDataProvider
+    ): Response {
+        $orderForViewing = $this->dispatchQuery(new GetOrderForViewing($orderId, QuerySorting::DESC));
+        $form = $orderProductFormBuilder->getFormFor($orderId);
+        $orderCurrency = $currencyDataProvider->getCurrencyById($orderForViewing->getCurrencyId());
+
+        return $this->render('@PrestaShop/Admin/Sell/Order/Order/Blocks/View/edit_product_form.html.twig', [
+            'editProductForm' => $form->createView(),
+            'orderForViewing' => $orderForViewing,
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
+            'isMultishipmentIsEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'orderId' => $orderId,
+            'currencySymbol' => $orderCurrency->symbol,
         ]);
     }
 
@@ -1076,6 +1093,7 @@ class OrderController extends PrestaShopAdminController
                 'cancelProductForm' => $cancelProductForm->createView(),
                 'orderCurrency' => $orderCurrency,
                 'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+                'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
             ]);
         }
 
@@ -1340,6 +1358,7 @@ class OrderController extends PrestaShopAdminController
             'orderCurrency' => $orderCurrency,
             'orderForViewing' => $orderForViewing,
             'product' => $product,
+            'orderHasShipment' => $this->orderHasShipment($orderId),
         ]);
     }
 
@@ -1877,6 +1896,7 @@ class OrderController extends PrestaShopAdminController
             'isColumnRefundedDisplayed' => $isColumnRefundedDisplayed,
             'isAvailableQuantityDisplayed' => (bool) $this->getConfiguration()->get('PS_STOCK_MANAGEMENT'),
             'isImprovedShipmentFeatureFlagEnabled' => $featureFlagStateChecker->isEnabled(FeatureFlagSettings::FEATURE_FLAG_IMPROVED_SHIPMENT),
+            'orderHasShipment' => $this->orderHasShipment($orderForViewing->getId()),
         ]);
     }
 
