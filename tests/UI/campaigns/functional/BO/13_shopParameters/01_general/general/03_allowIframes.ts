@@ -103,14 +103,8 @@ describe('BO - Shop Parameters - General : Enable/Disable Allow iframes on HTML 
 
         await boProductsCreateTabDescriptionPage.setIframeInDescription(page, description);
 
-        // @todo : https://github.com/PrestaShop/PrestaShop/issues/33921
-        // To delete after the fix of the issue
-        if (arg.action === 'Disable') {
-          await boProductsCreatePage.clickOnSaveProductButton(page);
-        } else {
           const message = await boProductsCreatePage.saveProduct(page);
           expect(message).to.eq(boProductsCreatePage.successfulUpdateMessage);
-        }
       });
 
       it('should preview the product', async function () {
