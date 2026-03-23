@@ -223,7 +223,8 @@ class ShipmentRepository extends EntityRepository
 
             if ((int) $remainingProducts === 0) {
                 $conn->createQueryBuilder()
-                    ->delete($this->tablePrefix . 'shipment')
+                    ->update($this->tablePrefix . 'shipment')
+                    ->set('deleted', '1')
                     ->where('id_shipment = :shipmentId')
                     ->setParameter('shipmentId', $shipmentId)
                     ->executeStatement();
