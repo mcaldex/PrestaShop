@@ -106,7 +106,7 @@ describe('BO - Shop Parameters - General : Enable/Disable Allow iframes on HTML 
         if (arg.action === 'Disable') {
           await boProductsCreatePage.clickOnSaveProductButton(page);
           const message = await boProductsCreatePage.getAlertDangerBlockParagraphContent(page);
-          expect(message).to.contains('embedded HTML');
+          expect(message).to.contains(boProductsCreatePage.errorMessageEmbeddedHtml);
         } else {
           const message = await boProductsCreatePage.saveProduct(page);
           expect(message).to.eq(boProductsCreatePage.successfulUpdateMessage);
