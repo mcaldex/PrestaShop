@@ -85,6 +85,17 @@ class PreferencesConfiguration implements DataConfigurationInterface
             ShopModeFeature::DEFAULT_SHOP_MODE
         );
 
+        if ($oldShopModeValue !== $newShopModeValue) {
+            PrestaShopLogger::addLog(
+                sprintf('Shop mode updated: from "%s" to "%s"', $oldShopModeValue->value, $newShopModeValue->value),
+                1,
+                null,
+                'Configuration',
+                0,
+                true
+            );
+        }
+
         $this->configuration->set('PS_SSL_ENABLED', $configuration['enable_ssl']);
         $this->configuration->set('PS_TOKEN_ENABLE', $configuration['enable_token']);
         $this->configuration->set(ShopModeFeature::CONFIGURATION_NAME, $newShopModeValue->value);
@@ -96,17 +107,6 @@ class PreferencesConfiguration implements DataConfigurationInterface
         $this->configuration->set('PS_DISPLAY_MANUFACTURERS', $configuration['display_manufacturers']);
         $this->configuration->set('PS_DISPLAY_BEST_SELLERS', $configuration['display_best_sellers']);
         $this->configuration->set('PS_MULTISHOP_FEATURE_ACTIVE', $configuration['multishop_feature_active']);
-
-        if ($oldShopModeValue !== $newShopModeValue) {
-            PrestaShopLogger::addLog(
-                sprintf('Shop mode updated: from "%s" to "%s"', $oldShopModeValue->value, $newShopModeValue->value),
-                1,
-                null,
-                'Configuration',
-                0,
-                true
-            );
-        }
 
         return [];
     }
