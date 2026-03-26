@@ -24,3 +24,7 @@ _attachment:
 _business_entity:
   resource: "business_entity/business_entities.yml"
   prefix: /business-entities/
+
+_customer_b2b:
+  resource: "business_entity/customer_b2b.yml"
+  prefix: /customer-b2b/
