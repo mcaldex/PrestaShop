@@ -232,12 +232,14 @@ export default class OrderProductEdit {
   handleShipmentQty(): void {
     const total = this.shipmentInputs.reduce((sum, input) => sum + Number(input.value), 0);
     const availableQuantity = parseInt(this.quantityInput.data('availableQuantity'), 10);
+    const previousQuantity = parseInt(this.quantityInput.data('previousQuantity'), 10);
+    const maxQuantity = availableQuantity + previousQuantity;
     const hasAtLeastOneQty = this.shipmentInputs.some((input) => Number(input.value) > 0);
     this.quantity = total;
     this.quantityInput.val(total);
     this.updateShipmentQtyCounter(total);
     this.updateTotal();
-    this.productEditSaveBtn.prop('disabled', !hasAtLeastOneQty || total > availableQuantity);
+    this.productEditSaveBtn.prop('disabled', !hasAtLeastOneQty || total > maxQuantity);
   }
 
   updateShipmentQtyCounter(total: number): void {
@@ -245,9 +247,11 @@ export default class OrderProductEdit {
       return;
     }
     const availableQuantity = parseInt(this.quantityInput.data('availableQuantity'), 10);
-    this.shipmentQtyCounter.textContent = `(${total}/${availableQuantity})`;
-    this.shipmentQtyCounter.classList.toggle('text-danger', total > availableQuantity);
-    this.shipmentQtyCounter.classList.toggle('text-muted', total >= 0 && total <= availableQuantity);
+    const previousQuantity = parseInt(this.quantityInput.data('previousQuantity'), 10);
+    const maxQuantity = availableQuantity + previousQuantity;
+    this.shipmentQtyCounter.textContent = `(${total}/${maxQuantity})`;
+    this.shipmentQtyCounter.classList.toggle('text-danger', total > maxQuantity);
+    this.shipmentQtyCounter.classList.toggle('text-muted', total >= 0 && total <= maxQuantity);
   };
 
   updateTotal(): void {
