@@ -19,11 +19,13 @@ use PrestaShopBundle\Translation\TranslatorComponent;
 class CheckoutProcessProviderResolver
 {
     /**
-     * Returns null when no valid provider is available or when several providers
-     * are enabled at the same time, so the checkout falls back to the native process.
+     * Returns the checkout process provided by modules when exactly one valid provider is available,
+     * or null to keep the native checkout.
      *
      * @param CheckoutSession $session
      * @param TranslatorComponent $translator
+     *
+     * @return CheckoutProcess|null
      */
     public function resolve(CheckoutSession $session, TranslatorComponent $translator): ?CheckoutProcess
     {

@@ -14,7 +14,9 @@ use PrestaShopBundle\Translation\TranslatorComponent;
 
 /**
  * Contract for modules that provide their own checkout process.
- * If one enabled provider is found, its checkout process replaces the native one.
+ * If exactly one enabled provider is returned by hooked modules, its checkout
+ * process replaces the native one. Otherwise, we falls back to the
+ * native checkout.
  */
 interface CheckoutProcessProviderInterface
 {
