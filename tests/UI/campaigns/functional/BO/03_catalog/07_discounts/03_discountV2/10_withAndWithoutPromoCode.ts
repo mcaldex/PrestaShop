@@ -32,7 +32,7 @@ describe('BO - Catalog - Discounts : Create a discount that applies automaticall
   let randomPromoCode: string = '';
 
   const discountWithoutName: FakerDiscount = new FakerDiscount({
-    discountType: 'On cart amount',
+    discountType: 'cart_level',
     name: ' ',
     noProductCondition: true,
     discountValue: 10,
@@ -59,7 +59,6 @@ describe('BO - Catalog - Discounts : Create a discount that applies automaticall
     ...discountWithoutName,
     name: 'Test',
     discountValue: 10,
-    generateDiscountCode: true,
     discountCode: 'test',
   });
 
@@ -67,7 +66,6 @@ describe('BO - Catalog - Discounts : Create a discount that applies automaticall
     ...discountWithoutName,
     name: 'Test',
     discountValue: 10,
-    generateDiscountCode: true,
     generateRandomCode: true,
   });
 
@@ -357,12 +355,12 @@ describe('BO - Catalog - Discounts : Create a discount that applies automaticall
     it('should get the discount code and regenerate a new random code', async function () {
       await testContext.addContextItem(this, 'testIdentifier', 'regerenateNewCode', baseContext);
 
-      const code = await boDiscountsCreatePage.getDiscountCode(page);
+      const code = await boDiscountsCreatePage.getValue(page, 'code');
 
       const successMessage = await boDiscountsCreatePage.createDiscount(page, discountRandomPromoCodeData);
       expect(successMessage).to.contains(boDiscountsCreatePage.successfulUpdateMessage);
 
-      randomPromoCode = await boDiscountsCreatePage.getDiscountCode(page);
+      randomPromoCode = await boDiscountsCreatePage.getValue(page, 'code');
       expect(code).not.equal(randomPromoCode);
     });
 
