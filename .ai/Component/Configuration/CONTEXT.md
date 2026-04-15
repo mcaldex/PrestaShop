@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Typed, multi-store-aware abstraction over PrestaShop's key-value configuration store (`ps_configuration`). Handles reading and writing shop settings across all-shops, shop-group, and single-shop scopes. Does not manage Symfony container parameters.
+Typed, multi-store-aware abstraction over PrestaShop's key-value configuration store (`configuration`). Handles reading and writing shop settings across all-shops, shop-group, and single-shop scopes. Does not manage Symfony container parameters.
 
 ## Layers
 

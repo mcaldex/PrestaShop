@@ -32,10 +32,6 @@ Infrastructure for building, populating, and handling back-office forms tied to 
 - `src/Core/Form/IdentifiableObject/DataHandler/ProductFormDataHandler.php` — complex handler delegating to CommandBuilders (advanced use case)
 - `src/PrestaShopBundle/Form/Admin/Configure/AdvancedParameters/Security/FormDataProvider.php` — settings page data provider
 
-## Skills
-
-- [`create-form`](skills/create-form/SKILL.md) — creates a complete IdentifiableObject form (form type, DataProvider, DataHandler, DI config, controller wiring)
-
 ## Related
 
 - [CQRS Component](../CQRS/CONTEXT.md) — `FormDataHandler` implementations dispatch commands via `CommandBus`

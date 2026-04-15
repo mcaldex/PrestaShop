@@ -25,11 +25,6 @@ After writing the file:
    ```
    cd .claude/skills && ln -s ../../<skill-dir-path-from-repo-root> <skill-name>
    ```
-   Example: for `.ai/Component/Forms/skills/create-form/`, run:
-   ```
-   cd .claude/skills && ln -s ../../.ai/Component/Forms/skills/create-form create-form
-   ```
-
 ---
 
 ## SKILL.md format reference

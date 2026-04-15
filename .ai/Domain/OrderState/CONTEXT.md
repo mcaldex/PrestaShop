@@ -24,10 +24,6 @@ Manages the configurable set of order statuses (e.g., "Payment accepted", "Shipp
 
 - `src/Core/Domain/OrderState/Command/AddOrderStateCommand.php` + `src/Adapter/OrderState/CommandHandler/AddOrderStateHandler.php`
 
-## Skills
-
-- [`create-form`](../../Component/Forms/skills/create-form/SKILL.md) — use when adding a new form to manage order state add/edit
-
 ## Related
 
 - [CQRS Component](../../Component/CQRS/CONTEXT.md)

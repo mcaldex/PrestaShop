@@ -24,10 +24,6 @@ Manages employee profiles (roles/groups), including CRUD operations and the assi
 - `src/Core/Domain/Profile/Command/AddProfileCommand.php` + `src/Adapter/Profile/CommandHandler/AddProfileHandler.php`
 - `src/Core/Domain/Profile/Query/GetProfileForEditing.php` + `src/Adapter/Profile/QueryHandler/GetProfileForEditingHandler.php`
 
-## Skills
-
-- [`create-form`](../../Component/Forms/skills/create-form/SKILL.md) — creates a complete back-office IdentifiableObject form
-
 ## Related
 
 - [CQRS Component](../../Component/CQRS/CONTEXT.md)

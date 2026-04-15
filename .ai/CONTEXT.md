@@ -59,7 +59,6 @@ PrestaShop is an open-source e-commerce platform built on Symfony. It follows a 
 | `create-skill` | [skills/create-skill/SKILL.md](skills/create-skill/SKILL.md) | "create a skill for …" |
 | `domain-context-generator` | [skills/domain-context-generator/SKILL.md](skills/domain-context-generator/SKILL.md) | "generate context for [Domain]" |
 | `component-context-generator` | [skills/component-context-generator/SKILL.md](skills/component-context-generator/SKILL.md) | "generate context for [Component]" |
-| `create-form` | [Component/Forms/skills/create-form/SKILL.md](Component/Forms/skills/create-form/SKILL.md) | "create a form for [Entity]" |
 
 ## Domain contexts
 

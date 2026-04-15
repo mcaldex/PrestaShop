@@ -23,10 +23,6 @@ Manages search engine URL parameter mappings (the back-office "Search Engines" c
 - `src/Core/Domain/SearchEngine/Command/AddSearchEngineCommand.php` + `src/Adapter/SearchEngine/CommandHandler/` (handler)
 - `src/Core/Domain/SearchEngine/Query/GetSearchEngineForEditing.php` + `src/Core/Domain/SearchEngine/QueryResult/SearchEngineForEditing.php`
 
-## Skills
-
-- [`create-form`](../../Component/Forms/skills/create-form/SKILL.md) — creates a complete back-office IdentifiableObject form
-
 ## Related
 
 - [CQRS Component](../../Component/CQRS/CONTEXT.md)

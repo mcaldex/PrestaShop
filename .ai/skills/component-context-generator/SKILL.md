@@ -100,7 +100,7 @@ Pick 2–3 files: the main interface, the most-used implementation, and one doma
 
 ### 6. Check for relevant skills
 
-List the contents of `.ai/skills/` and check if any skill targets this component (e.g. `create-form` for the Forms component). If one exists, include a `## Skills` section before `## Related` linking to it.
+List the contents of `.ai/skills/` and check if any skill targets this component. If one exists, include a `## Skills` section before `## Related` linking to it.
 
 ### 7. Write Related
 
