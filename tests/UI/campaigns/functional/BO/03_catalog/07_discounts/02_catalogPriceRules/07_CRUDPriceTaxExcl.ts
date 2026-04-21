@@ -12,16 +12,15 @@ import {
   foHummingbirdCartPage,
   foHummingbirdSearchResultsPage,
   foHummingbirdHomePage,
-  foHummingbirdLoginPage,
   foHummingbirdProductPage,
   // Import data
   dataProducts,
-  dataCustomers,
   FakerCatalogPriceRule,
   // Import type
   type BrowserContext,
   type Page,
   utilsPlaywright,
+  utilsCore,
 } from '@prestashop-core/ui-testing';
 
 const baseContext: string = 'functional_BO_catalog_discounts_catalogPriceRules_CRUDPriceTaxExcluded';
@@ -145,7 +144,7 @@ describe('BO - Catalog - Discounts - Catalog price Rules : CRUD Price (tax excl.
       const finalPrice = await foHummingbirdProductPage.getProductInformation(page);
       expect(finalPrice.price.toFixed(2)).to.equal(
         (
-          catalogPriceRuleData.price + (catalogPriceRuleData.price * 20 / 100) - catalogPriceRuleData.reduction
+          catalogPriceRuleData.price + utilsCore.percentage(catalogPriceRuleData.price, 20) - catalogPriceRuleData.reduction
         ).toFixed(2),
       );
     });
@@ -164,10 +163,11 @@ describe('BO - Catalog - Discounts - Catalog price Rules : CRUD Price (tax excl.
 
       const productDetail = await foHummingbirdCartPage.getProductDetail(page, 1);
       await Promise.all([
-        expect(productDetail.regularPrice).to.equal(catalogPriceRuleData.price + (catalogPriceRuleData.price * 20 / 100)),
+        expect(productDetail.regularPrice).to.equal(
+          catalogPriceRuleData.price + utilsCore.percentage(catalogPriceRuleData.price, 20)),
         expect(productDetail.price.toFixed(2)).to.equal(
           (
-            catalogPriceRuleData.price + (catalogPriceRuleData.price * 20 / 100) - catalogPriceRuleData.reduction
+            catalogPriceRuleData.price + utilsCore.percentage(catalogPriceRuleData.price, 20) - catalogPriceRuleData.reduction
           ).toFixed(2),
         ),
         expect(productDetail.discountAmount).to.equal(`-€${catalogPriceRuleData.reduction.toFixed(2)}`),
