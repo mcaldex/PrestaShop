@@ -1,29 +1,119 @@
 ---
 name: create-grid-definition
 description: >
-  Create the Grid Definition Factory that declares all columns, bulk actions,
-  and row actions for the entity listing page. This factory is the single source
-  of truth for the grid structure.
-produces: "{Domain}GridDefinitionFactory.php — defines columns, filters, actions for the entity listing"
+  Create the grid definition for an entity listing: columns, row actions, bulk actions,
+  filters class, and service registration. Covers everything needed to define the grid
+  structure. The query builder is a separate skill (create-grid-query-builder). Read
+  Component/Grid/CONTEXT.md for the factory architecture. Trigger: "create grid definition
+  for {Domain}".
+needs: [create-cqrs-commands, create-admin-routing]
+produces: "{Domain}GridDefinitionFactory + {Domain}Filters + DI registration"
 ---
 
 # create-grid-definition
 
-## Instructions
+Read `@.ai/Component/Grid/CONTEXT.md` for the factory trilogy (GridDefinitionFactory → GridDataFactory → GridFactory) and SearchCriteria patterns.
 
-1. Create `{Domain}GridDefinitionFactory.php` extending `AbstractGridDefinitionFactory`.
-2. Override `getId(): string` — return a unique grid ID (e.g., `'carrier'`).
-3. Override `getName(): string` — return translatable grid name.
-4. Implement `getColumns(): ColumnCollection` — add each column from the entity definition using column type classes.
-5. For each column, choose the correct type: `DataColumn` (text), `ToggleColumn` (boolean with AJAX toggle), `ActionColumn` (row actions), `PositionColumn` (drag-and-drop reorder, if applicable).
-6. Implement `getFilters(): FilterCollection` — add filters matching the columns.
-7. Implement `getBulkActions(): BulkActionCollection` — add enable, disable, delete bulk actions.
-8. Implement `getRowActions(): RowActionCollection` — add edit and delete row actions.
-9. Register the factory in DI.
+## 1. Grid Definition Factory
+
+Create `src/Core/Grid/Definition/Factory/{Domain}GridDefinitionFactory.php` extending `AbstractGridDefinitionFactory`:
+
+- Define a `public const GRID_ID = '{domain}'` constant — this is the single source of truth for the grid identifier, shared with the `{Domain}Filters` class to ensure the filter persistence in DB maps to the correct grid
+- `getId(): string` — return `self::GRID_ID`
+- `getName(): string` — translatable grid name
+- `getColumns(): ColumnCollection` — all columns (see section 2)
+- `getFilters(): FilterCollection` — filterable columns (see section 4)
+- `getGridActions(): GridActionCollection` — grid-level actions (e.g. export)
+- `getRowActions(): RowActionCollection` — per-row actions (see section 3)
+- `getBulkActions(): BulkActionCollection` — multi-select actions (see section 3)
+
+**Reference:** `src/Core/Grid/Definition/Factory/TaxGridDefinitionFactory.php` (simple), `src/Core/Grid/Definition/Factory/ManufacturerGridDefinitionFactory.php` (two grids)
+
+## 2. Column types
+
+| Column type | When to use | Notes |
+|---|---|---|
+| `BulkActionColumn` | Row selection checkbox | Always first column |
+| `DataColumn` | Plain text (name, email, date) | Most common |
+| `ToggleColumn` | Clickable boolean toggle (active status) | Requires AJAX toggle route |
+| `ImageColumn` | Image thumbnail (logo) | |
+| `LinkColumn` | Text with hyperlink | |
+| `PositionColumn` | Drag handle for reordering | See `create-position-column` skill |
+| `ActionColumn` | Row actions dropdown | Always last column |
+
+Column IDs must be `snake_case` and exactly match the SQL column aliases in the query builder.
+
+## 3. Row actions and bulk actions
+
+### Row actions
+
+Add in `getRowActions()`:
+- `LinkRowAction` for edit — links to `admin_{domain}s_edit` route with `{id}` parameter
+- `LinkRowAction` for delete — links to `admin_{domain}s_delete` with `confirm_message` option for JS confirmation
+- Order: edit first, delete last
+
+### Bulk actions
+
+Add in `getBulkActions()`:
+- `SubmitBulkAction` for each bulk operation (delete, enable, disable, or any other)
+- Each submits the grid form to the corresponding controller route
+- Bulk delete must include a confirmation dialog (`confirm_bulk_action: true`)
+- Only add bulk actions that the entity actually supports — not all entities have enable/disable
+
+Route names in actions must exactly match the routing YAML.
+
+## 4. Filters
+
+Filters are defined in the grid definition via `getFilters(): FilterCollection`. Each filter specifies:
+- Filter ID (must match a column ID)
+- The form type to render (e.g. `TextType`, `ChoiceType`, `DateRangeType`)
+- All filter fields are optional (`required: false`)
+
+These filter definitions are used by the grid rendering to build the filter bar. They are NOT a separate form type class.
+
+## 5. {Domain}Filters class (SearchCriteria)
+
+Create `src/Core/Search/Filters/{Domain}Filters.php` extending `Filters`:
+
+- This implements `SearchCriteriaInterface` — it is NOT a form type
+- Uses the `GRID_ID` constant from the definition factory to ensure the filter ID matches the grid — this is critical for filter persistence in DB
+- Defines defaults: grid ID, default sort column, sort direction, limit
+- Injected into the controller's `indexAction` via argument resolver
+- Filter values are populated from the session (saved by `CommonController::searchGridAction`)
+
+```php
+class {Domain}Filters extends Filters
+{
+    protected $filterId = {Domain}GridDefinitionFactory::GRID_ID;
+
+    public static function getDefaults(): array
+    {
+        return [
+            'limit' => static::LIST_LIMIT,
+            'offset' => 0,
+            'orderBy' => 'id_{domain}',
+            'sortOrder' => 'asc',
+            'filters' => [],
+        ];
+    }
+}
+```
+
+**Reference:** `src/Core/Search/Filters/TaxFilters.php` (simple)
+
+## 6. Service registration
+
+Register in DI YAML:
+
+- `{Domain}GridDefinitionFactory` — with parent `prestashop.core.grid.definition.factory.abstract_grid_definition` and grid ID
+- `{Domain}Filters` — with `autoconfigure: true`
+- Wire the GridFactory service combining definition factory + data factory
+- Verify: `php bin/console debug:container | grep {domain}`
 
 ## Rules
 
-- Every column must have a unique ID matching the QueryBuilder alias
-- ToggleColumn requires an AJAX route in the actions config
-- PositionColumn is only added when the entity supports drag-and-drop reordering
-- Column IDs must be snake_case matching the SQL query result column alias
+- Column IDs must match query builder SELECT aliases exactly
+- ToggleColumn requires a dedicated AJAX toggle route
+- BulkActionColumn always first, ActionColumn always last
+- Route names in actions must match routing YAML exactly — typos cause silent 404s
+- `{Domain}Filters` is SearchCriteria, not a form type

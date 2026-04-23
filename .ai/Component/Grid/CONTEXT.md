@@ -28,6 +28,29 @@ Infrastructure for rendering and managing back-office data tables: column defini
 - `src/Core/Grid/Definition/Factory/ProductGridDefinitionFactory.php` — concrete implementation
 - `src/Core/Grid/Query/LanguageQueryBuilder.php` — simple concrete query builder
 
+## Factory trilogy (data flow)
+
+Three factories work together to produce a renderable grid:
+
+1. **`GridDefinitionFactory`** — defines structure: columns, filters, row actions, bulk actions. Each domain implements one extending `AbstractGridDefinitionFactory`. Hook `action{GridId}GridDefinitionModifier` allows modules to add columns/actions
+2. **`GridDataFactory`** — retrieves data. `DoctrineGridDataFactory` delegates to a `DoctrineQueryBuilderInterface` implementation to execute SQL based on `SearchCriteria`. Returns `GridData` (RecordCollection + total count)
+3. **`GridFactory`** — orchestrates: combines definition + data factory, resolves filters, dispatches hooks. This is what the controller calls: `$gridFactory->getGrid($filters)`
+
+### GridDataFactory decoration
+
+When grid data needs post-processing (e.g. resolving image URLs from IDs, formatting computed columns), decorate the `GridDataFactory` instead of modifying the query builder:
+
+- Create a decorator implementing `GridDataFactoryInterface`
+- Inject the original factory, call `getData()`, then transform the `RecordCollection`
+- Register with `decorates:` in DI YAML
+
+### SearchCriteria and {Domain}Filters
+
+- `{Domain}Filters` (in `src/Core/Search/Filters/`) extends `Filters` which implements `SearchCriteriaInterface` — it is NOT a form type
+- It defines defaults (grid ID, default sort column/direction, default limit)
+- Injected into the controller's index action via argument resolver: `indexAction({Domain}Filters $filters)`
+- Filter values come from the grid filter bar (saved in session by `CommonController::searchGridAction`)
+
 ## Related
 
 - [Forms Component](../Forms/CONTEXT.md) — filter forms use `FormChoiceProviderInterface`
