@@ -4,7 +4,7 @@ description: >
   Create the Symfony routing YAML file declaring all admin routes for the
   domain. Every route must carry `_legacy_feature_flag` and `_legacy_controller`
   to enable feature-flag-based routing between legacy and new controller.
-needs: [create-symfony-admin-controller]
+needs: [create-controller-listing, create-controller-form-actions]
 produces: "YAML routing file with all admin routes carrying _legacy_feature_flag and _legacy_controller"
 ---
 
@@ -25,7 +25,7 @@ produces: "YAML routing file with all admin routes carrying _legacy_feature_flag
    ```
 3. Include routes: index (GET), create (GET+POST), edit (GET+POST with `{id}` parameter), delete (POST with `{id}`), toggle status (POST+JSON), bulk delete/enable/disable (POST).
 4. Import this file from the main admin routing file.
-5. CRITICAL: `_legacy_feature_flag` value must exactly match the `id` attribute in feature_flag.xml.
+5. CRITICAL: `_legacy_feature_flag` value must exactly match the `name` of the feature flag in feature_flag.xml.
 6. Verify with `php bin/console debug:router | grep {domain}`.
 
 ## Rules

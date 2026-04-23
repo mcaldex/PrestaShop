@@ -24,7 +24,7 @@ produces: "feature_flag.xml entry with stability=beta and state=0"
      <description_domain>Admin.{Section}.Feature</description_domain>
    </feature_flag>
    ```
-3. The `id` attribute must exactly match `_legacy_feature_flag` values in H2.
+3. The `name` field (which maps to the `id` attribute in XML) must exactly match the `_legacy_feature_flag` values in the routing YAML.
 4. Insert a row manually for local dev: `INSERT INTO ps_feature_flag (name, state, stability) VALUES ('{domain}', 0, 'beta');`
 5. Enable for development: `UPDATE ps_feature_flag SET state=1 WHERE name='{domain}';`
 6. Verify routing: visit legacy URL with flag OFF → legacy page. Enable flag → redirect to Symfony route.
