@@ -8,29 +8,24 @@ deliverable: "src/Adapter/{Domain}/ with Repository, Validator, all Command and 
 
 # Step 2 — Adapter Layer
 
-The adapter layer lives in `src/Adapter/{Domain}/`. It bridges Core domain contracts with the legacy ObjectModel layer. Handlers here implement the interfaces defined in Step 1 and are tagged for the Symfony service bus via PHP attributes.
+The adapter layer lives in `src/Adapter/{Domain}/`. It bridges Core domain contracts with the legacy ObjectModel layer. Handlers here implement the interfaces defined in Step 1 and use `#[AsCommandHandler]` / `#[AsQueryHandler]` attributes for automatic registration via Symfony Messenger.
+
+Read `@.ai/Component/CQRS/CONTEXT.md` for CQRS conventions.
 
 ## Micro-Skills
 
-
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-domain-repository` | `Repository/{Domain}Repository.php` | — |
-| `create-sub-resource-repository` | `Repository/{Domain}{SubRes}Repository.php` ×N | if sub-res |
-| `create-domain-validator` | `Validate/{Domain}Validator.php` | — |
-| `create-add-command-handler` | `CommandHandler/Add{Domain}Handler.php` | — |
-| `create-edit-command-handler` | `CommandHandler/Edit{Domain}Handler.php` | — |
-| `create-delete-command-handlers` | `CommandHandler/Delete{Domain}Handler.php` + `BulkDelete{Domain}Handler.php` | — |
-| `create-toggle-command-handlers` | `CommandHandler/Toggle{Domain}StatusHandler.php` + bulk variant ×N | — |
-| `create-sub-resource-command-handler` | `CommandHandler/Set{Domain}{SubRes}Handler.php` ×N | if sub-res |
-| `create-get-for-editing-handler` | `QueryHandler/Get{Domain}ForEditingHandler.php` | — |
-| `create-file-uploader-implementation` | `File/Uploader/{Domain}LogoFileUploader.php` | if file uploads |
+| Skill | What it produces in this step |
+|---|---|
+| `create-doctrine-repository` | Repository (choose base class by multistore tier) |
+| `implement-cqrs-handlers` | All command + query handler implementations |
+| `create-cqrs-bulk-commands` | Bulk handler implementations (extends AbstractBulkCommandHandler) — if bulk actions |
+| `register-cqrs-services` | DI registration (autoconfigure + attribute-based) |
 
 ## 2.1 — Repository
 
 ### `Repository/{Domain}Repository.php`
 
-This is the central data access class. It **must** extend `AbstractMultiShopObjectModelRepository` — not `AbstractObjectModelRepository` and not a custom base. Multistore awareness is mandatory even if multistore is not in scope for the first sprint.
+This is the central data access class. Choose the base class based on the entity's multistore tier (see `create-doctrine-repository` skill for the tier table). `AbstractMultiShopObjectModelRepository` for tier 3 (per-shop content) or tier 2 (useful helpers), `AbstractObjectModelRepository` for tier 1 (no shop relation).
 
 ```php
 // src/Adapter/{Domain}/Repository/{Domain}Repository.php
@@ -278,22 +273,13 @@ Upload errors must throw the domain exception, not PHP errors or generic excepti
 
 ## 2.6 — Service registration
 
-All adapters are auto-wired if `services.yaml` has autoconfigure/autowire enabled for the `Adapter` namespace. However, handlers must be explicitly tagged if not using auto-tagging:
-
-```yaml
-# services/adapter/carrier/command_handlers.yml
-PrestaShop\PrestaShop\Adapter\{Domain}\CommandHandler\Add{Domain}Handler:
-    tags:
-        - { name: tactician.handler, command: '...Add{Domain}Command' }
-```
-
-With `#[AsCommandHandler]` the attribute handles this automatically — verify the attribute is supported in the PS version being targeted.
+Handlers use `#[AsCommandHandler]` / `#[AsQueryHandler]` attributes for automatic registration via Symfony Messenger. With `autoconfigure: true`, no manual tags are needed. See `register-cqrs-services` skill for the DI YAML pattern.
 
 ## Checklist
 
-- [ ] `Repository/{Domain}Repository.php` extends `AbstractMultiShopObjectModelRepository`
+- [ ] Repository created with appropriate base class (see multistore tier table in `create-doctrine-repository`)
 - [ ] `get()`, `add()`, `update()`, `delete()` implemented with correct exception types
-- [ ] `getShopIdsByConstraint()` called in every write operation
+- [ ] Multistore-aware writes if applicable (tier 2/3)
 - [ ] Sub-resource repositories created if needed (atomic replace pattern)
 - [ ] `Validate/{Domain}Validator.php` created with all field validations
 - [ ] `Add{Domain}Handler` implemented — fills entity, validates, saves, handles associations
@@ -303,4 +289,4 @@ With `#[AsCommandHandler]` the attribute handles this automatically — verify t
 - [ ] `Get{Domain}ForEditingHandler` implemented — all ObjectModel properties cast to typed PHP
 - [ ] Sub-resource query handlers implemented
 - [ ] File uploader implemented if needed, throws domain exception on failure
-- [ ] All handlers auto-wired or explicitly tagged in services YAML
+- [ ] All handlers use `#[AsCommandHandler]` / `#[AsQueryHandler]` attributes with `autoconfigure: true`

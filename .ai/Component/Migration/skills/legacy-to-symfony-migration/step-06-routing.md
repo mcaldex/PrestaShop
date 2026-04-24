@@ -13,11 +13,11 @@ Routing in PrestaShop admin follows a specific convention that differs from stan
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-admin-routing` | `Resources/config/routing/admin/{section}/{domain}s.yml` | — |
+| Skill | What it produces in this step |
+|---|---|
+| `create-admin-routing` | YAML routing with _legacy_feature_flag on all routes |
 
-> **Routing must be committed together with `create-admin-controller` and `register-feature-flag`** — routes referencing an unregistered feature flag cause a 500.
+> **Routing must be committed together with `create-controller-listing` and `register-feature-flag`** — routes referencing an unregistered feature flag cause a 500.
 
 ## 6.1 — File location and naming
 

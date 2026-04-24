@@ -10,16 +10,16 @@ deliverable: "src/Core/Grid/ components for the listing page: DefinitionFactory,
 
 The PrestaShop grid system (`src/Core/Grid/`) powers the admin listing pages. It is composed of four loosely-coupled classes that the Symfony controller assembles via a `GridFactory`. The grid is independent of the form — it can be built and shipped before the add/edit form exists.
 
+Read `@.ai/Component/Grid/CONTEXT.md` for the factory trilogy (GridDefinitionFactory → GridDataFactory → GridFactory), SearchCriteria patterns, and GRID_ID conventions.
+
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-grid-definition-factory` | `Grid/Definition/Factory/{Domain}GridDefinitionFactory.php` | — |
-| `create-grid-query-builder` | `Grid/Query/{Domain}QueryBuilder.php` | — |
-| `create-grid-data-factory` | `Grid/Data/Factory/{Domain}GridDataFactory.php` | if computed cols |
-| `create-grid-search-filters` | `Core/Search/Filters/{Domain}Filters.php` | — |
-| `register-grid-services` | `services/core/grid/{domain}.yml` | — |
+| Skill | What it produces in this step |
+|---|---|
+| `create-grid-definition` | GridDefinitionFactory + {Domain}Filters class + DI registration |
+| `create-grid-query-builder` | DBAL QueryBuilder + optional GridDataFactory decorator |
+| `create-position-column` | PositionColumn + position route (if entity is reorderable) |
 
 ## 4.1 — GridDefinitionFactory
 

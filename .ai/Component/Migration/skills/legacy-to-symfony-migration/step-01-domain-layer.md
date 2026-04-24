@@ -10,25 +10,15 @@ deliverable: "src/Core/Domain/{Domain}/ fully populated: ValueObjects, Commands,
 
 The domain layer lives in `src/Core/Domain/{Domain}/`. It contains **no implementation** — only contracts, value objects, and data structures. Everything here must be framework-agnostic and dependency-free (no Doctrine, no Symfony, no ObjectModel).
 
+Read `@.ai/Component/CQRS/CONTEXT.md` for CQRS conventions.
+
 ## Micro-Skills
 
-
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-identity-value-object` | `ValueObject/{Domain}Id.php` | — |
-| `create-semantic-value-object` | `ValueObject/{Concept}.php` ×N | if enums |
-| `create-add-command` | `Command/Add{Domain}Command.php` | — |
-| `create-edit-command` | `Command/Edit{Domain}Command.php` | — |
-| `create-delete-commands` | `Command/Delete{Domain}Command.php` + `BulkDelete{Domain}Command.php` | — |
-| `create-toggle-commands` | `Command/Toggle{Domain}StatusCommand.php` + bulk variant | — |
-| `create-sub-resource-command` | `Command/Set{Domain}{SubRes}Command.php` ×N | if sub-res |
-| `create-get-for-editing-query` | `Query/Get{Domain}ForEditing.php` | — |
-| `create-list-query` | `Query/Get{Domain}s.php` | — |
-| `create-editable-dto` | `QueryResult/Editable{Domain}.php` | — |
-| `create-exception-hierarchy` | `Exception/` hierarchy ×N | — |
-| `create-command-handler-interfaces` | `CommandHandler/*HandlerInterface.php` ×N | — |
-| `create-query-handler-interfaces` | `QueryHandler/*HandlerInterface.php` ×N | — |
-| `create-file-uploader-interface` | `{Domain}LogoFileUploaderInterface.php` | if file uploads |
+| Skill | What it produces in this step |
+|---|---|
+| `create-cqrs-commands` | ValueObjects, Commands (Add/Edit/Delete/Toggle/SubResource), Exceptions, Handler interfaces |
+| `create-cqrs-queries` | Queries (GetForEditing, optional GetList), QueryResult DTOs, Query handler interfaces |
+| `create-cqrs-bulk-commands` | Bulk commands (BulkDelete, BulkToggleStatus) — if grid has bulk actions |
 
 ## 1.1 — ValueObjects
 

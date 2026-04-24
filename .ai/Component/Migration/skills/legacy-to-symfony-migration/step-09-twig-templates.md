@@ -13,12 +13,10 @@ Two templates are required for every migrated page: the listing (`index.html.twi
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-index-template` | `views/Admin/{Section}/{Domain}s/index.html.twig` | — |
-| `create-form-template` | `views/Admin/{Section}/{Domain}s/form.html.twig` | — |
-| `create-form-theme-widget` | `views/.../FormTheme/{widget}.html.twig` ×N | if Vue |
-| `create-showcase-card` | `views/.../Blocks/showcase_card.html.twig` | if new feature |
+| Skill | What it produces in this step |
+|---|---|
+| `create-twig-index-template` | Grid listing page template |
+| `create-twig-form-template` | Add/edit form page template + optional form theme overrides |
 
 ## 9.1 — Directory structure
 

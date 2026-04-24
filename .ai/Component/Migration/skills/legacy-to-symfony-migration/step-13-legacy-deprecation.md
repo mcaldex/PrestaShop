@@ -15,11 +15,11 @@ The Carrier migration added this step 5 months after GA (PR #39050, July 2025, G
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `add-legacy-deprecation-notice` | `controllers/admin/Admin{Domain}sController.php` (edit) | — |
-| `write-changelog-deprecation` | `CHANGELOG.md` (edit) | — |
-| `create-removal-issue` | GitHub Issue | — |
+| Skill | What it produces in this step |
+|---|---|
+| `add-legacy-deprecation-notice` | Deprecation banner in legacy controller |
+| `write-changelog-deprecation` | CHANGELOG.md deprecation entry |
+| `create-removal-issue` | GitHub issue tracking legacy removal in next major |
 
 ## 13.1 — When to deprecate
 

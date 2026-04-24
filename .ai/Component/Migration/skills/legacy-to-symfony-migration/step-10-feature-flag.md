@@ -13,11 +13,11 @@ The feature flag is **not optional**. It is the mechanism that routes HTTP reque
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `register-feature-flag` | `install-dev/data/xml/feature_flag.xml` (new entry) | — |
+| Skill | What it produces in this step |
+|---|---|
+| `register-feature-flag` | feature_flag.xml entry with stability=beta, state=0 |
 
-> **The feature flag must be committed together with `create-admin-controller` and `create-admin-routing`** — routes referencing an unregistered feature flag cause a 500.
+> **The feature flag must be committed together with `create-controller-listing` and `create-admin-routing`** — routes referencing an unregistered feature flag cause a 500.
 
 ## 10.1 — What the feature flag does
 

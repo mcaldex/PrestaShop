@@ -13,11 +13,10 @@ GA is a dedicated PR. It contains no new features — only the flag promotion an
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `promote-feature-flag-to-stable` | `install-dev/data/xml/feature_flag.xml` (edit) | — |
-| `write-upgrade-sql` | `upgrade/sql/{version}.sql` | if upgrade path |
-| `migrate-playwright-tests-to-default` | edit all Playwright campaign files | — |
+| Skill | What it produces in this step |
+|---|---|
+| `promote-feature-flag-to-stable` | feature_flag.xml updated to stable/state=1 + Playwright tests updated |
+| `write-upgrade-sql` | SQL migration for existing installations (if needed) |
 
 ## 12.1 — GA prerequisites checklist
 

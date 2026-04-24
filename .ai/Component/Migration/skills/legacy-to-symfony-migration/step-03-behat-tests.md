@@ -10,17 +10,15 @@ deliverable: "tests/Integration/Behaviour/ fully green for all domain commands a
 
 Integration tests are written **immediately after the Adapter layer**, before building any UI. They give confidence that the CQRS layer is correct before the controller and form layers are built on top of it. A failing Behat suite is a blocker — do not proceed to Step 4 with red tests.
 
+Read `@.ai/Component/Behat/CONTEXT.md` for Behat conventions (stateless steps, referenceToId, context registration, available tags).
+
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-behat-feature-context` | `Context/Domain/{Domain}/{Domain}FeatureContext.php` | — |
-| `write-behat-crud-scenarios` | `Scenario/{Domain}/{domain}_management.feature` | — |
-| `write-behat-constraint-scenarios` | append to `{domain}_management.feature` | — |
-| `write-behat-i18n-scenarios` | append to `{domain}_management.feature` | if i18n |
-| `write-behat-sub-resource-scenarios` | `Scenario/{Domain}/{domain}_{subres}.feature` ×N | if sub-res |
-| `write-behat-multistore-scenarios` | `Scenario/{Domain}/{domain}_multishop.feature` | if multistore |
+| Skill | What it produces in this step |
+|---|---|
+| `create-behat-context` | FeatureContext class + behat.yml registration |
+| `write-behat-scenarios` | .feature file with CRUD, bulk, constraint, i18n, multistore scenarios |
 
 ## 3.1 — Directory structure
 

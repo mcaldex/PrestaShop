@@ -13,15 +13,11 @@ Playwright tests are the gate between beta and GA. They must be written **before
 ## Micro-Skills
 
 
-| Skill | Artifact | ⚠ |
-|---|---|---|
-| `create-test-data-fixtures` | `tests/UI/data/{domain}.ts` | — |
-| `create-test-resetter` | `tests/Resources/Resetter/{Domain}Resetter.php` | — |
-| `create-playwright-crud-campaign` | `tests/UI/.../01_CRUD{Domain}.ts` | — |
-| `create-playwright-filter-campaign` | `tests/UI/.../02_filterSort{Domain}s.ts` | — |
-| `create-playwright-bulk-campaign` | `tests/UI/.../03_quickEditAndBulkActions.ts` | — |
-| `create-playwright-position-campaign` | `tests/UI/.../04_changePosition.ts` | if position |
-| `create-playwright-tab-campaign` | `tests/UI/.../0{N}_{TabName}.ts` ×N | per tab |
+| Skill | What it produces in this step |
+|---|---|
+| `create-playwright-page-objects` | BO page object classes in ui-testing-library |
+| `create-playwright-test-data` | Faker data classes + predefined data in ui-testing-library |
+| `write-playwright-campaigns` | CRUD, filter, bulk, position, per-tab campaigns in core repo |
 
 > **E1 and E2** (test fixtures and resetter) can be written as soon as the migration manifest exists — they do not require a working page.
 
