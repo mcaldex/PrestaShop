@@ -13,7 +13,7 @@ produces: "YAML routing file with all admin routes carrying _legacy_feature_flag
 ## Instructions
 
 1. Create `src/PrestaShopBundle/Resources/config/routing/admin/{domain}.yml`.
-2. For each action in H1, declare a route:
+2. For each action in the controller (listing + form actions), declare a route:
    ```yaml
    admin_{domain}s_index:
      path: /{domain}s

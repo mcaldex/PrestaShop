@@ -15,7 +15,7 @@ conditional: "only for entities with position/sort support"
 
 1. Add `PositionColumn` as the second column (after BulkActionColumn) in the Grid Definition.
 2. Configure the position update route: `->setOption('update_method', 'POST')->setOption('update_route', 'admin_{domain}s_update_position')`.
-3. Create the `admin_{domain}s_update_position` POST route in H2.
+3. Create the `admin_{domain}s_update_position` POST route in the routing YAML (see `create-admin-routing` skill).
 4. In the controller, handle the AJAX position update: receive `positions[]` array, dispatch `UpdatePosition{Domain}Command` (or use QueryBuilder directly).
 5. In the repository, update the `position` column for the moved entities.
 
